@@ -63,6 +63,11 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+
 @app.route('/create_room/<int:case_id>', methods=['POST'])
 @login_required
 def create_room(case_id):

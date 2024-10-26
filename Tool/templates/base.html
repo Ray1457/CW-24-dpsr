@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @font-face {
+            font-family: 'Hotalie';
+            src: url('../static/font/Hotalie.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'CloisterBlack';
+            src: url('../static/font/CloisterBlack.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Artifact';
+            src: url('../static/font/Artifact.otf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Fontdinerdotcom';
+            src: url('../static/font/Fontdinerdotcom.ttf') format('truetype');
+        }
+        .font-hotalie {
+            font-family: 'Hotalie', cursive;
+        }
+        .font-cloister {
+            font-family: 'CloisterBlack', cursive;
+        }
+        .font-artifact {
+            font-family: 'Artifact', cursive;
+        }
+        .font-fontdinerdotcom {
+            font-family: 'Fontdinerdotcom', cursive;
+        }
+
+    </style>
+</head>
+<body class="bg-black min-h-screen font-cloister relative overflow-x-hidden">
+    <div class="fixed inset-0 z-0">
+        <img src="../static/img/assets/Home.png" alt="Background" class="w-full h-full object-cover object-top brightness-[0.8]">
+    </div>
+    
+
+    <nav class="relative z-10 p-4 md:p-6 ">
+        <div class="hidden md:flex justify-end space-x-1 text-xl lg:text-2xl">
+            <a href="#home" class="text-white hover:text-gray-300 px-4 py-2">Home</a>
+            <a href="#about" class="text-white hover:text-gray-300 px-4 py-2">For Players</a>
+            <a href="#services" class="text-white hover:text-gray-300 px-4 py-2">For Creators</a>
+            <a href="#contact" class="text-white hover:text-gray-300 px-4 py-2">Login</a>
+            <a href="#contact" class="text-white hover:text-gray-300 px-4 py-2">Register</a>
+        </div>
+
+        <div class="md:hidden flex justify-end">
+            <button id="menuBtn" class="text-white p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden absolute right-0 top-16 w-48 bg-black/80 rounded-lg">
+            <div class="flex flex-col p-4 space-y-4">
+                <a href="#home" class="text-white hover:text-gray-300">Home</a>
+                <a href="#about" class="text-white hover:text-gray-300">For Players</a>
+                <a href="#services" class="text-white hover:text-gray-300">For Creators</a>
+                <a href="#contact" class="text-white hover:text-gray-300">Login</a>
+                <a href="#contact" class="text-white hover:text-gray-300">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    
+    {% block content %}
+    {% endblock %}
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

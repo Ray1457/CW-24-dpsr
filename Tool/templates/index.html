@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Mystify-Home
+{% endblock %}
+
+
+{% block content %}
+
+<div class="relative z-10 min-h-[calc(100vh-100px)] flex items-center">
+    <div class="w-full px-4 md:px-12 lg:px-16">
+        <div class="flex flex-col items-center md:items-start">
+            <div class="flex flex-col items-center w-full max-w-2xl lg:max-w-3xl">
+                <div class="text-white text-xl md:text-3xl lg:text-4xl flex flex-col items-center absolute">
+                    <span class="font-artifact leading-3">Mystery Inc.</span> <br>
+                    <span class="font-fontdinerdotcom leading-3">Presents:</span> 
+                </div>
+                <img src="../static/img/assets/Group 5-2.png" alt="Mystify Logo" class="w-full h-auto mt-10 lg:mt-8">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
