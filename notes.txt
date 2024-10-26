@@ -1,0 +1,22 @@
+
+user:-
+    username
+    email
+    no of gems (3000 by default)
+    succes rate (out of 100%)
+    no of cases solved 
+
+case :-
+    cut scenes(r)
+    answers
+    clues
+
+cut scene:
+    text
+    image
+    character(r)
+
+
+character (5-6):
+    name
+    image
