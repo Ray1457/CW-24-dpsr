@@ -7,6 +7,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     gems = db.Column(db.Integer, default=3000)
     success_rate = db.Column(db.Float, default=0.0)
     cases_solved = db.Column(db.Integer, default=0)
@@ -57,3 +58,34 @@ class Case(db.Model):
 
     def __repr__(self):
         return f"<Case {self.id}>"
+
+
+class Room(db.Model):
+    __tablename__ = 'rooms'
+
+    id = db.Column(db.Integer, primary_key=True)
+    room_code = db.Column(db.String(10), unique=True, nullable=False)
+    case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
+
+    # Relationships
+    case = db.relationship('Case', backref=db.backref('rooms', lazy=True))
+    users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'))
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    room_id = db.Column(db.Integer, db.ForeignKey('rooms.id'))
+
+    # Relationships
+    user = db.relationship('User', backref=db.backref('messages', lazy=True))
+    room = db.relationship('Room', backref=db.backref('messages', lazy=True))
+
+# Association table for users in rooms
+room_users = db.Table('room_users',
+    db.Column('room_id', db.Integer, db.ForeignKey('rooms.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
+)
