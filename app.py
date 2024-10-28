@@ -30,8 +30,8 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Registration successful! Please log in.', 'success')
         login_user(new_user)
+
         return redirect(url_for('home'))
     
     return render_template('register.html')
@@ -66,6 +66,7 @@ def logout():
 
 @app.route('/')
 def home():
+    flash('test', 'error')
     return render_template('index.html')
 
 

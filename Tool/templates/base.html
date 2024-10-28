@@ -35,7 +35,6 @@
         .font-fontdinerdotcom {
             font-family: 'Fontdinerdotcom', cursive;
         }
-
     </style>
 </head>
 <body class="bg-black min-h-screen font-cloister relative overflow-x-hidden">
@@ -43,7 +42,6 @@
         <img src="../static/img/assets/Home.png" alt="Background" class="w-full h-full object-cover object-top brightness-[0.8]">
     </div>
     
-
     <nav class="relative z-10 p-4 md:p-6 ">
         <div class="hidden md:flex justify-end space-x-1 text-xl lg:text-2xl">
             <a href="#home" class="text-white hover:text-gray-300 px-4 py-2">Home</a>
@@ -72,9 +70,14 @@
         </div>
     </nav>
 
-    
     {% block content %}
     {% endblock %}
+
+    <!-- Flash Message Alert -->
+    <div id="flashAlert" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black font-bold text-xl px-6 py-4 rounded-lg shadow-lg z-50 hidden">
+        <span id="flashMessageText"></span>
+        <button onclick="closeFlashAlert()" class="ml-4 text-black font-bold">&times;</button>
+    </div>
 
     <script>
         const menuBtn = document.getElementById('menuBtn');
@@ -83,6 +86,27 @@
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Flash Message Display
+        function showFlashMessage(message) {
+            const flashAlert = document.getElementById('flashAlert');
+            const flashMessageText = document.getElementById('flashMessageText');
+            flashMessageText.innerText = message;
+            flashAlert.classList.remove('hidden');
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                flashAlert.classList.add('hidden');
+            }, 5000);
+        }
+
+        function closeFlashAlert() {
+            document.getElementById('flashAlert').classList.add('hidden');
+        }
+
+        // Sample flash message for demonstration (replace with backend flash messages)
+        const flashMessages = {{ get_flashed_messages() | tojson | safe }};
+        flashMessages.forEach(message => showFlashMessage(message));
     </script>
 </body>
 </html>
