@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room - {{ room.room_code }}</title>
+</head>
+<body>
+    <h1>Chat Room: {{ room.room_code }}</h1>
+    <h2>Participants</h2>
+    <ul id="participants">
+        {% for user in room.users %}
+            <li>{{ user.username }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Messages</h3>
+    <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll;">
+        {% for msg in room.messages %} 
+        <div><strong>${data.user}</strong>: ${data.message}</div>
+    </div>
+
+    <input type="text" id="message-input" placeholder="Type a message..." />
+    <button id="send-message">Send</button>
+
+    <button id="leave-room">Leave Room</button>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const roomCode = '{{ room.room_code }}'; // Get the room code from the server
+
+        // Join the room
+        socket.emit('join', { room: roomCode });
+
+        // Handle incoming messages
+        socket.on('message', function(data) {
+            $('#messages').append(`<div><strong>${data.user}</strong>: ${data.message}</div>`);
+        });
+
+        // Send a message
+        $('#send-message').on('click', function() {
+            const message = $('#message-input').val();
+            socket.emit('message', { room: roomCode, message: message });
+            $('#message-input').val(''); // Clear the input
+        });
+
+        // Leave the room
+        $('#leave-room').on('click', function() {
+            socket.emit('leave', { room: roomCode });
+            window.location.href = '/'; // Redirect to home after leaving
+        });
+    </script>
+</body>
+</html>

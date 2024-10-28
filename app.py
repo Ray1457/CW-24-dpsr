@@ -25,13 +25,14 @@ def register():
             return redirect(url_for('register'))
 
         # Create a new user
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password)
         new_user = User(username=username, email=email, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
 
         flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('login'))
+        login_user(new_user)
+        return redirect(url_for('home'))
     
     return render_template('register.html')
 
@@ -68,6 +69,12 @@ def home():
     return render_template('index.html')
 
 
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+
 @app.route('/create_room/<int:case_id>', methods=['POST'])
 @login_required
 def create_room(case_id):
@@ -85,12 +92,11 @@ def join_room_view(room_code):
         flash('Room not found', 'error')
         return redirect(url_for('home'))
 
-    if request.method == 'POST':
-        room.users.append(current_user)
-        db.session.commit()
-        return redirect(url_for('room', room_code=room_code))
+   
+    room.users.append(current_user)
+    db.session.commit()
+    return redirect(url_for('room', room_code=room_code))
     
-    return render_template('join_room.html', room=room)
 
 @app.route('/room/<room_code>')
 @login_required

@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from Tool import db, login_manager
 from flask_login import UserMixin
+from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -75,22 +76,25 @@ class Room(db.Model):
     # Relationships
     case = db.relationship('Case', backref=db.backref('rooms', lazy=True))
     users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'))
+    messages = db.relationship('Message', backref='room', lazy=True)  # Adding the messages relationship
 
 class Message(db.Model):
     __tablename__ = 'messages'
 
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=db.func.now())
+    timestamp = db.Column(db.DateTime, default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     room_id = db.Column(db.Integer, db.ForeignKey('rooms.id'))
 
     # Relationships
     user = db.relationship('User', backref=db.backref('messages', lazy=True))
-    room = db.relationship('Room', backref=db.backref('messages', lazy=True))
+    room = db.relationship('Room', backref=db.backref('messages', lazy=True))  # This is already defined
 
 # Association table for users in rooms
 room_users = db.Table('room_users',
     db.Column('room_id', db.Integer, db.ForeignKey('rooms.id'), primary_key=True),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
 )
+
+
