@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <style>
         @font-face {
             font-family: 'Hotalie';
@@ -35,12 +37,26 @@
         .font-fontdinerdotcom {
             font-family: 'Fontdinerdotcom', cursive;
         }
+
+        img {
+            -webkit-user-select: none; /* For Safari */
+        -moz-user-select: none;    /* For Firefox */
+        -ms-user-select: none;     /* For Internet Explorer/Edge */
+        user-select: none;         /* Standard */
+        }
+
+        ion-icon {
+            -webkit-user-select: none; /* For Safari */
+        -moz-user-select: none;    /* For Firefox */
+        -ms-user-select: none;     /* For Internet Explorer/Edge */
+        user-select: none;         /* Standard */
+        }
+
+        
     </style>
 </head>
 <body class="bg-black min-h-screen font-cloister relative overflow-x-hidden">
-    <div class="fixed inset-0 z-0">
-        <img src="../static/img/assets/Home.png" alt="Background" class="w-full h-full object-cover object-top brightness-[0.8]">
-    </div>
+    
     
     <nav class="relative z-10 p-4 md:p-6 ">
         <div class="hidden md:flex justify-end space-x-1 text-xl lg:text-2xl">

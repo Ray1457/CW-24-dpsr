@@ -66,7 +66,8 @@ def logout():
 
 @app.route('/')
 def home():
-    flash('test', 'error')
+    if (current_user.is_authenticated):
+        flash(f'Logged in as {current_user.username}', 'error')
     return render_template('index.html')
 
 

@@ -1,0 +1,72 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block content %}
+<div class="fixed inset-0 z-[-1]">
+    <img src="../static/img/assets/login.png" alt="Background" class="w-full h-full object-cover brightness-[0.8]">
+</div>
+
+<div class="flex flex-col h-full w-full items-center justify-center text-white">
+    <h1 class="text-6xl font-cloister mt-8">Login</h1>
+    <form action="/login" class="flex flex-col gap-12 mt-16 items-center" method="post" autocomplete="off">
+        <div class="inp-container text-2xl w-2xl flex flex-col items-center">
+            <input type="text" name="email" id="login_email" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-[85%]" placeholder="Email" oninput="validateLogin()">
+            <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+        </div>
+        <div class="inp-container text-2xl w-2xl flex flex-col items-center relative">
+            <div class="flex items-center w-[85%]">
+                <input type="password" id="login_password" name="password" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-full" placeholder="Password" oninput="validateLogin()">
+                <span class="cursor-pointer" onclick="togglePasswordVisibility('login_password', 'login_pass_icon')">
+                    <ion-icon name="eye-off-outline" id="login_pass_icon" class="m-auto"></ion-icon>
+                </span>
+            </div>
+            <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+        </div>
+        <button type="submit" class="mt-8 cursor-not-allowed" disabled>
+            <img class="max-w-[10rem]" src="../static/img/assets/submit.png" alt="Submit">
+        </button>
+    </form>
+    <span class="text-xl mt-4 text-gray-300">
+        Don't have an account?
+        <a href="{{ url_for('register') }}" class="underline text-white">Register here</a>
+    </span>
+</div>
+
+<script>
+    function validate_email(email) {
+        // Regular expression for validating an Email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    function validateLogin() {
+        const email = document.getElementById('login_email').value.trim();
+        const password = document.getElementById('login_password').value.trim();
+        const submitButton = document.querySelector('button[type="submit"]');
+
+        // Check if both fields are filled
+        if (email && password && validate_email(email)) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('cursor-not-allowed');
+            submitButton.classList.add('cursor-pointer');
+        } else {
+            // Disable the submit button if any field is empty
+            submitButton.disabled = true;
+            submitButton.classList.add('cursor-not-allowed');
+            submitButton.classList.remove('cursor-pointer');
+        }
+    }
+
+    function togglePasswordVisibility(id, icon_id) {
+        const passwordField = document.getElementById(id);
+        passwordField.type = passwordField.type === "password" ? "text" : "password";
+
+        const icon = document.getElementById(icon_id);
+        icon.name = icon.name === "eye-outline" ? "eye-off-outline" : "eye-outline";
+    }
+</script>
+
+{% endblock %}

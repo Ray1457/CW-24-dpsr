@@ -1,0 +1,116 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+<div class="fixed inset-0 z-[-1]">
+    <img src="../static/img/assets/login.png" alt="Background" class="w-full h-full object-cover brightness-[0.8]">
+</div>
+
+<div class="flex flex-col h-full w-full items-center justify-center text-white">
+    <h1 class="text-6xl font-cloister mt-8">Register</h1>
+    <form action="/register" class="flex flex-col items-center" method="post" autocomplete="off">
+        <div class="flex gap-8">
+            <div class="flex flex-col gap-12 mt-16">
+                <div class="inp-container text-2xl w-2xl flex flex-col items-center">
+                    <input type="text" name="username" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-[85%]" placeholder="Username">
+                    <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+                </div>
+                <div class="inp-container text-2xl w-2xl flex flex-col items-center relative">
+                    <div class="flex items-center w-[85%]">
+                        <input type="password" id="password" name="password" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-full" placeholder="Password">
+                        <span class="cursor-pointer " onclick="togglePasswordVisibility('password' , 'pass_icon')">
+                            <ion-icon name="eye-off-outline" id="pass_icon" class="m-auto"></ion-icon>
+                        </span>
+                    </div>
+                    <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+                    
+                </div>
+            </div>
+            <div class="flex flex-col gap-12 mt-16">
+                <div class="inp-container text-2xl w-2xl flex flex-col items-center">
+                    <input type="email" name="email" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-[85%]" placeholder="Email">
+                    <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+                </div>
+                <div class="inp-container text-2xl w-2xl flex flex-col items-center relative">
+                    <div class="flex items-center w-[85%]">
+                        <input type="password" id="confirm_password" name="confirm_password" class="bg-transparent border-none focus:outline-none focus:ring-0 text-center w-full" placeholder="Confirm Password" oninput="checkPasswordMatch()">
+                        <span class="cursor-pointer" onclick="togglePasswordVisibility('confirm_password', 'confirm_icon')">
+                            <ion-icon name="eye-off-outline" id="confirm_icon" class="m-auto"></ion-icon>
+                        </span>
+                    </div>
+                    <img class="max-w-sm" src="../static/img/assets/input.png" alt="">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="mt-10 cursor-not-allowed" disabled>
+            <img class="max-w-[10rem]" src="../static/img/assets/submit.png" alt="Submit">
+        </button>
+    </form>
+
+    <script>
+
+    function validate_email(email) {
+        // Regular expression for validating an Email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    function validate() {
+        const username = document.querySelector('input[name="username"]').value.trim();
+        const email = document.querySelector('input[name="email"]').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const submitButton = document.querySelector('button[type="submit"]');
+
+        // Check if all fields are filled
+        if (username && email && password && confirmPassword && validate_email(email)) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('cursor-not-allowed');
+            submitButton.classList.add('cursor-pointer');
+        } else {
+            // Disable the submit button if any field is empty
+            submitButton.disabled = true;
+            submitButton.classList.add('cursor-not-allowed');
+            submitButton.classList.remove('cursor-pointer');
+        }
+    }
+
+    // Add event listeners to inputs to validate on input change
+    document.querySelector('input[name="username"]').addEventListener('input', validate);
+    document.querySelector('input[name="email"]').addEventListener('input', validate);
+    document.getElementById('password').addEventListener('input', validate);
+    document.getElementById('confirm_password').addEventListener('input', validate);
+    
+
+
+        function togglePasswordVisibility(id, icon_id) {
+            const passwordField = document.getElementById(id);
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+
+            const icon = document.getElementById(icon_id);
+            icon.name = icon.name === "eye-outline" ? "eye-off-outline" : "eye-outline";
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const confirmPasswordElement = document.getElementById('confirm_password');
+            const submitButton = document.querySelector('button[type="submit"]');
+        
+            if (password !== confirmPassword) {
+                confirmPasswordElement.classList.add('text-red-500');
+            } else {
+                confirmPasswordElement.classList.remove('text-red-500');
+            }
+        }
+    </script>
+
+    <span class="text-xl mt-4 text-gray-300">
+        Already have an account ?
+        <a href="{{ url_for('login') }}" class="underline text-white">Login here</a>
+    </span>
+</div>
+{% endblock %}

@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     gems = db.Column(db.Integer, default=3000)
     success_rate = db.Column(db.Float, default=0.0)
     cases_solved = db.Column(db.Integer, default=0)
-    profile_pic = db.Column(db.String(255))  # Path or URL to profile picture
+    profile_pic = db.Column(db.String(255), default = '../static/img/user/default.png')  # Path or URL to profile picture
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -89,7 +89,7 @@ class Message(db.Model):
 
     # Relationships
     user = db.relationship('User', backref=db.backref('messages', lazy=True))
-    room = db.relationship('Room', backref=db.backref('messages', lazy=True))  # This is already defined
+    # room = db.relationship('Room', backref=db.backref('messages', lazy=True))  # This is already defined
 
 # Association table for users in rooms
 room_users = db.Table('room_users',
