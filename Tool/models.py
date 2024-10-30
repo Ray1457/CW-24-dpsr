@@ -17,7 +17,13 @@ class User(db.Model, UserMixin):
     gems = db.Column(db.Integer, default=3000)
     success_rate = db.Column(db.Float, default=0.0)
     cases_solved = db.Column(db.Integer, default=0)
-    profile_pic = db.Column(db.String(255), default = '../static/img/user/default.png')  # Path or URL to profile picture
+    profile_pic = db.Column(db.String(255), default='../static/img/user/default.png')  # Path or URL to profile picture
+    # New fields for additional profile info
+    name = db.Column(db.String(100))
+    age = db.Column(db.Integer)
+    height = db.Column(db.Integer)  # Height in cm
+    dob = db.Column(db.Date)
+    about = db.Column(db.Text)
 
     def __repr__(self):
         return f"<User {self.username}>"

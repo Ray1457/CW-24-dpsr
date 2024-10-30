@@ -5,7 +5,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_socketio import join_room, emit, send, leave_room
 from werkzeug.security import generate_password_hash, check_password_hash
 import string
-import random 
+import random
+from datetime import datetime 
 
 # Utility to generate unique room codes
 def generate_room_code(length=6):
@@ -32,7 +33,7 @@ def register():
 
         login_user(new_user)
 
-        return redirect(url_for('home'))
+        return redirect(url_for('profile'))
     
     return render_template('register.html')
 
@@ -75,6 +76,33 @@ def home():
 @app.route('/test')
 def test():
     return render_template('test.html')
+
+
+@app.route('/profile', methods = ['GET', 'POST'])
+def profile():
+    if request.method == 'POST':
+        data = request.json
+        print(data)
+        user_id = data.get('id')  # Assuming 'id' is sent to identify the user
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Update user profile information
+        user.name = data.get('name', user.name)
+        user.age = data.get('age', user.age)
+        user.height = data.get('height', user.height)
+        dob_str = data.get('dob')
+        user.dob = datetime.strptime(dob_str, "%Y-%m-%d").date() if dob_str else user.dob
+        user.about = data.get('about', user.about)
+
+        # Save changes
+        db.session.commit()
+
+        return jsonify({"message": "Profile updated successfully"}), 200
+
+    return render_template('profile.html', user = current_user)  
 
 
 @app.route('/create_room/<int:case_id>', methods=['POST'])
