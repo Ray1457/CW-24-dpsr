@@ -105,6 +105,78 @@ def profile():
     return render_template('profile.html', user = current_user)  
 
 
+
+@app.route('/play') 
+def play():
+    cases = Case.query.all()
+    return render_template('play.html', cases = cases)
+
+
+@app.route('/play/single/<cid>')
+def play_single(cid):
+    return render_template('index.html')
+
+@app.route('/clans/<cid>')
+def clans(cid):
+    return render_template('clans.html', cid = cid)
+
+@app.route('/_add_cases')
+def _add_cases():
+    cases = [
+        {
+            "title": "HAUNTED HOUSE HANG UP",
+            "description": "nkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu",
+            "answer": "",  # Placeholder for answers
+            "clues": None,
+            "cover_image": "../static/img/case button/1.png",
+            "background_image": "../static/img/case bg/1.png",
+            "reward": 1000,
+            "locked": False,
+            "video": None
+        },
+        {
+            "title": "COMING SOON",
+            "description": "Something has happened in crystal cave again! Mayor Jones is under attack by a poltergeist in his own home, and the only ones who can help him are Scooby and the gang. Could you help Mayor Jones before it's too late?",
+            "answer": "",  # Placeholder for answers
+            "clues": None,
+            "cover_image": "../static/img/case button/2.png",
+            "background_image": "../static/img/case bg/2.png",
+            "reward": 1000,
+            "locked": True,
+            "video": None
+        },
+        {
+            "title": "COMING SOON",
+            "description": "The gang investigate an old abandoned amusement park, when it suddenly jumps into life, and the mysterious robot that seems to have taken it over. Could you help Scooby Doo and the gang to fight against the tank of robots?",
+            "answer": "",  # Placeholder for answers
+            "clues": None,
+            "cover_image": "../static/img/case button/3.png",
+            "background_image": "../static/img/case bg/3.png",
+            "reward": 1000,
+            "locked": True,
+            "video": None
+        }
+    ]
+
+    # Add each case to the database
+    for case_data in cases:
+        new_case = Case(
+            title=case_data['title'],
+            description=case_data['description'],
+            answer=case_data['answer'],
+            clues=case_data['clues'],
+            cover_image=case_data['cover_image'],
+            background_image=case_data['background_image'],
+            reward=case_data['reward'],
+            locked=case_data['locked'],
+            video=case_data['video']
+        )
+        db.session.add(new_case)
+
+    db.session.commit()
+    return jsonify({"message": "Cases added successfully"})
+
+
 @app.route('/create_room/<int:case_id>', methods=['POST'])
 @login_required
 def create_room(case_id):
@@ -156,10 +228,6 @@ def handle_leave(data):
     leave_room(room_code)
     send(f"{current_user.username} has left the room.", to=room_code)
 
-# Signaling for WebRTC Voice Chat (Basic Implementation)
-@socketio.on('webrtc_signal')
-def webrtc_signal(data):
-    emit('webrtc_signal', data, to=data['room'])
 
 
 if __name__ == '__main__':

@@ -1,69 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Page</title>
-</head>
-<body>
-    <h1>Test Page</h1>
-    
-    {% if current_user.is_authenticated %}
-        <h2>Welcome, {{ current_user.username }}!</h2>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <h2>Please Log In or Register</h2>
-        
-        <h3>Login</h3>
-        <form action="{{ url_for('login') }}" method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
+{% extends 'base.html' %}
 
-        <h3>Register</h3>
-        <form action="{{ url_for('register') }}" method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Register</button>
-        </form>
-    {% endif %}
+{% block title %}
+Mystify - Update Profile 
+{% endblock %}
 
-    <h3>Create a Room</h3>
-    <form action="/create_room/1" method="POST"> <!-- Adjust case_id as needed -->
-        <button type="submit">Create Room</button>
-    </form>
+{% block content %}
 
-    <h3>Join a Room</h3>
-    <form action="/join_room" method="GET">
-        <input type="text" name="room_code" placeholder="Enter Room Code" required>
-        <button type="submit">Join Room</button>
-    </form>
 
-    <div id="chat-container" style="display:none;">
-        <h3>Chat Room</h3>
-        <div id="messages" style="border: 1px solid #ccc; height: 200px; overflow-y: scroll;"></div>
-        <input type="text" id="message-input" placeholder="Type a message..." />
-        <button id="send-message">Send</button>
+
+<div class="max-w-64 flex flex-col bg-white shadow-xl items-center rounded-xl p-4 gap-4 relative -rotate-12 left-20">
+
+    <img src="../static/img/assets/clip.png" alt=""
+    class="left-[-25px] top-8 absolute h-8"
+    >
+
+    <img src="../static/img/user/default.png" alt=""
+        class="rounded-xl object-cover"    
+    >
+    <div class="flex items-center justify-between gap-8">
+        <img src="../static/img/assets/stamp.png" alt=""
+        class="h-16 w-16"
+        >
+        <img src="../static/img/assets/sign.png" alt=""
+        class="h-16"
+        >
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script>
-        const socket = io();
 
-        // Handle messages in the chat room
-        socket.on('message', function(data) {
-            $('#messages').append(`<div><strong>${data.user}</strong>: ${data.message}</div>`);
-        });
 
-        $('#send-message').on('click', function() {
-            const message = $('#message-input').val();
-            const roomCode = 'YOUR_ROOM_CODE_HERE'; // Replace with actual room code
-            socket.emit('message', { room: roomCode, message: message });
-            $('#message-input').val('');
-        });
-    </script>
-</body>
-</html>
+ 
+
+
+
+
+
+{% endblock %}

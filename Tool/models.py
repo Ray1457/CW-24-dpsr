@@ -28,48 +28,24 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"<User {self.username}>"
 
-class Character(db.Model):
-    __tablename__ = 'characters'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)
-    image = db.Column(db.String(255))  # Path or URL to character image
-
-    def __repr__(self):
-        return f"<Character {self.name}>"
-
-# Association table for Case and CutScene (many-to-many)
-case_cutscene = db.Table('case_cutscene',
-    db.Column('case_id', db.Integer, db.ForeignKey('cases.id'), primary_key=True),
-    db.Column('cutscene_id', db.Integer, db.ForeignKey('cutscenes.id'), primary_key=True)
-)
-
-class CutScene(db.Model):
-    __tablename__ = 'cutscenes'
-
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.Text, nullable=False)
-    image = db.Column(db.String(255))  # Path or URL to cutscene image
-    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
-
-    character = db.relationship('Character', backref=db.backref('cutscenes', lazy=True))
-
-    def __repr__(self):
-        return f"<CutScene {self.id}>"
 
 class Case(db.Model):
     __tablename__ = 'cases'
 
     id = db.Column(db.Integer, primary_key=True)
-    answers = db.Column(db.Text, nullable=False)  # Can store comma-separated answers or JSON
-    clues = db.Column(db.Text, nullable=False)    # Can store comma-separated clues or JSON
-    cover_image = db.Column(db.String(255))  # Path or URL to cover image
-
-    cut_scenes = db.relationship('CutScene', secondary=case_cutscene, lazy='subquery',
-                                 backref=db.backref('cases', lazy=True))
+    title = db.Column(db.String(255), nullable=False)  # Title for the case/chapter
+    description = db.Column(db.Text, nullable=False)    # Detailed description or storyline
+    answer = db.Column(db.String, nullable=False)        # Storing answers (JSON or comma-separated)
+    clues = db.Column(db.Text, nullable=True)          
+    cover_image = db.Column(db.String(255))             # Path or URL to cover image
+    background_image = db.Column(db.String(255))        # Background image for the case/chapter
+    reward = db.Column(db.Integer, default=0)      # Points or rewards for completion
+    locked = db.Column(db.Boolean, default=True)        # Indicates if the case is locked or unlocked
+    video = db.Column(db.String, nullable = True)
 
     def __repr__(self):
-        return f"<Case {self.id}>"
+        return f"<Case {self.id} - {self.title}>"
+
 
 
 class Room(db.Model):
@@ -82,7 +58,7 @@ class Room(db.Model):
     # Relationships
     case = db.relationship('Case', backref=db.backref('rooms', lazy=True))
     users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'))
-    messages = db.relationship('Message', backref='room', lazy=True)  # Adding the messages relationship
+    messages = db.relationship('Message', backref='room', lazy=True)
 
 class Message(db.Model):
     __tablename__ = 'messages'

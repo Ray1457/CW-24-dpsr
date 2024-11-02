@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mystify - Play
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+    .gregean_bush {
+        font-family: 'Gregean Bush';
+    }
+    .hatolie {
+        font-family: 'Hatolie';
+    }
+    footer {
+        background-image: url('assets/gems_box.png');
+    }
+    body {
+        font-family: Hatolie;
+        color: black;
+    }
+    .level-btn {
+        transition: transform 0.3s ease;
+    }
+    .level-btn.active {
+        transform: scale(1.1);
+    }
+    .level-btn.active .chapter-title {
+        color: white;
+    }
+    #gameDialog {
+        backdrop-filter: blur(3px);
+    }
+    #gameDialog button {
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    /* New inactive-filter class */
+    .inactive-filter {
+        filter: brightness(0.5);
+        transform: scale(0.75);
+        transition: filter 0.3s ease, transform 0.3s ease;
+    }
+
+    button {
+        cursor: pointer;
+    }
+</style>
+
+<main class="flex flex-col items-center relative">
+    {% for case in cases %}
+    <div id="level{{ loop.index }}" class="level-content w-screen h-screen absolute top-0 left-0 {{ 'hidden' if not loop.first }} flex flex-col" 
+         style="background-image: url('{{ case.background_image }}'); background-size: cover;">
+        <div class="w-3/5 max-w-3xl p-8 flex flex-col items-center text-center my-8">
+            <h1 class="gregean_bush text-red-700 text-8xl rotate-[3.42deg]">{{ case.title }}</h1>
+            <p class="text-2xl font-semibold mb-8">{{ case.description }}</p>
+            {% if not case.locked %}
+            <div class="flex items-center ga">
+                <button onclick="openGameDialog('gameDialog{{ loop.index }}')" class="bg-gray-800 bg-opacity-50 hover:bg-opacity-70 text-white px-12 py-3 rounded-lg transition-all duration-300 text-3xl">
+                    Play
+                </button>
+                <span class="bg-yellow-200 rounded-lg flex items-center justify-center w-28 mb-4">
+                    <p class='font-bold text-lg tracking-[0.1rem]'>Aura</p>
+                    <img src="../static/img/assets/gems.png" class="h-10">
+                    <p class="font-bold text-lg">{{ case.reward }}</p>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</main>
+
+<div class="absolute right-8 bottom-1/2 translate-y-1/2 lg:bottom-36 lg:right-1/2 lg:translate-x-1/2 flex flex-col lg:flex-row justify-center lg:justify-between gap-8 lg:gap-20 z-2">
+    {% for case in cases %}
+    <button onclick="showLevel('level{{ loop.index }}')" class="flex flex-col level-btn w-64 h-64 items-center justify-center" data-level="level{{ loop.index }}">
+        <img src="{{ case.cover_image }}" alt="Level {{ loop.index }}" class="w-full h-full object-contain {{ 'inactive-filter' if case.locked }}">
+        <h2 class="tracking-[0.25rem] absolute bottom-4 text-2xl font-bold text-gray-400 chapter-title">CASE {{ loop.index }}</h2>
+    </button>
+    {% endfor %}
+</div>
+
+
+{% for case in cases %}
+{% if not case.locked %}
+<div id="gameDialog{{ loop.index }}" style="background-image: url('../static/img/assets/dialog_bg.png'); box-shadow: 0 0 0 100vmax rgba(0,0,0,0.5);" class="hidden max-w-2xl m-auto bg-no-repeat bg-center bg-contain fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
+    <div class="p-12 relative w-full flex flex-col items-center justify-center">
+        <h2 class="text-5xl mb-8 hotalie font-bold">Mode</h2>
+        <div class="flex flex-col gap-4">
+            <button onclick="startGame('single', {{ loop.index }})" class="text-3xl font-semibold hover:bg-yellow-700 px-8 py-2 rounded hotalie transition-colors duration-300">
+                Single Player
+            </button>
+            <div class="h-1 w-full bg-black"></div>
+            <button onclick="startGame('multi', {{ loop.index }})" class="text-3xl font-semibold hover:bg-yellow-700 px-8 py-3 rounded hotalie transition-colors duration-300">
+                Multiplayer
+            </button>
+        </div>
+
+        <button onclick="closeGameDialog('gameDialog{{ loop.index }}')" class="text-2xl mt-4 bg-[#bc6e24] hover:bg-[#89501a] px-6 py-2 rounded transition-colors duration-300">
+            Close
+        </button>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<script>
+    function showLevel(levelId) {
+        // Hide all levels
+        document.querySelectorAll('.level-content').forEach(level => {
+            level.classList.add('hidden');
+        });
+        // Show the selected level
+        document.getElementById(levelId).classList.remove('hidden');
+
+        // Update button styles based on the active level
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            const isActive = btn.dataset.level === levelId;
+            btn.querySelector('img').classList.toggle('inactive-filter', !isActive);
+            btn.classList.toggle('active', isActive);
+        });
+    }
+
+    function openGameDialog(dialogId) {
+        console.log('Opening dialog:', dialogId);
+        document.getElementById(dialogId).classList.remove('hidden');
+    }
+
+    function closeGameDialog(dialogId) {
+        console.log('Closing dialog:', dialogId);
+        document.getElementById(dialogId).classList.add('hidden');
+    }
+
+    function startGame(mode, level) {
+        if (mode === "multi") {
+            window.location.href = "{{ url_for('clans', cid = level)}}";
+        }
+        else if (mode === "single") {
+            window.location.href = "{{ url_for('play_single' , cid = level) }}";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach event listeners to dialog overlays
+        {% for case in cases %}
+        {% if not case.locked %}
+        document.getElementById('gameDialog{{ loop.index }}').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeGameDialog('gameDialog{{ loop.index }}');
+            }
+        });
+        {% endif %}
+        {% endfor %}
+    });
+
+    // Initially show the first level
+    showLevel('level1');
+
+    // Initially show the first level
+    showLevel('level1');
+</script>
+
+
+
+{% endblock %}
