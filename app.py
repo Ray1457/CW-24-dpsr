@@ -314,7 +314,10 @@ def check_clan_code():
 def get_clue():
     case_id = request.form.get('case_id')
     clue_no = int(request.form.get('clue_no'))
-    clan_code = (request.form.get('clue_no' , None))
+    clan_code = (request.form.get('clan_code' , None))
+
+
+    print('data', request.form)  
 
 
 
@@ -342,7 +345,7 @@ def get_clue():
         new_access = ClueAccess(user_id=current_user.id, case_id=case_id, clue_no=clue_no)
         db.session.add(new_access)
         if (clan_code):
-            clan = Clan.query.filter_by(room_code = clan_code)
+            clan = Clan.query.filter_by(room_code = clan_code).first()
             for user in clan.users:
                 new_access = ClueAccess(user_id=user.id, case_id=case_id, clue_no=clue_no)
                 db.session.add(new_access)
@@ -373,6 +376,13 @@ def check_answer():
     else:
         return jsonify({"status": "error", "message": "Incorrect answer. Try again!"}), 200
 
+
+@app.route('/del/<cc>', methods = ['POST'])
+def delclan(cc):
+    clan = Clan.query.filter_by(room_code = cc)
+    db.session.delete(clan)
+    db.session.commit()
+    return jsonify({'success' : 'success'})
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

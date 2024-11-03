@@ -57,7 +57,7 @@ class ClueAccess(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     case_id = db.Column(db.Integer, db.ForeignKey('cases.id', ondelete='CASCADE'), nullable=False)
-    clue_index = db.Column(db.Integer, nullable=False)  # The index of the accessed clue
+    clue_no = db.Column(db.Integer, nullable=False)  # The index of the accessed clue
     accessed_at = db.Column(db.DateTime, default=datetime.now)  # Timestamp of when the clue was accessed
 
     def __repr__(self):
