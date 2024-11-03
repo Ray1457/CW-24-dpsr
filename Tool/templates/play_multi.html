@@ -58,8 +58,9 @@ Mystify - Play Multiplayer
 
     <div class="container mx-auto p-4">
         <!-- Main Content -->
-        <div class="flex flex-col min-h-[80vh]">
-            <div class="parchment-texture flex items-center justify-center mt-16">
+        <div class="flex flex-col mt-16">
+            <a class="px-4 text-center py-2 mx-auto bg-yellow-700 hover:bg-yellow-600 transition-colors text-2xl rounded-lg text-black mb-8 w-[400px]">Rewatch Background story</a>
+            <div class="parchment-texture flex items-center justify-center">
                 <div class="max-w-2xl w-full flex-grow mb-4 rounded-lg p-4 min-h-[400px] relative">
                     <div id="messages" class="max-h-[50vh] overflow-y-auto mx-auto flex flex-col mb-24 overflow-x-hidden">
                         {% for msg in room.messages %}
@@ -147,9 +148,9 @@ Mystify - Play Multiplayer
         </div>
     </div>
     
+
     <script>
-        // Add this to your existing script section
-        function openDialog(dialogId) {
+ function openDialog(dialogId) {
             document.getElementById(dialogId).style.display = 'flex';
         }
     
@@ -180,9 +181,7 @@ Mystify - Play Multiplayer
                 }
             });
         });
-    </script>
 
-    <script>
         const socket = io();
         const roomCode = '{{ room.room_code }}'; // Get the room code from the server
 
