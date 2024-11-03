@@ -110,14 +110,14 @@
 
     {% if current_user.is_authenticated and request.endpoint not in ['home', 'login' , 'register', 'vid_multi', 'vid_single'] %}
 
-    <footer class="fixed bottom-4 left-4 bg-no-repeat bg-contain z-[100]" style="background-image: url('{{ url_for('static', filename='img/assets/gems_box.png') }}'); width: 150px; height: 50px; background-size: 100% 100%;">
+    <footer class="fixed bottom-4 left-4 bg-no-repeat bg-contain z-[100]" style="background-image: url('{{ url_for('static', filename='img/assets/gems_box.png') }}'); width: 195px; height: 65px; background-size: 100% 100%;">
         <a href="">
             <div class="flex items-center justify-center h-full mt-1">
                 <p class="font-semibold text-white">Aura</p>
                 <img src="{{ url_for('static', filename='img/assets/gems.png') }}" class="w-6 h-6 mr-2">
-                <span class="text-xl text-white hatolie">
+                <span class="text-xl text-white hatolie flex items-center gap-2">
                     {{ current_user.gems }}
-                    <ion-icon name="add-circle-outline" class=""></ion-icon>
+                    <ion-icon name="add-outline"></ion-icon>
                 </span>
             </div>
         </a>
