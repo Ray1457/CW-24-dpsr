@@ -12,6 +12,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # It's good practice to disable this
 app.secret_key = 'JHINGALALA HUR HUR'
+app.config['STRIPE_SECRET_KEY'] = 'sk_test_51MMRkOSEzPBlgs1CJdlZhhC2OCxiFs74QjzGnPWhP7ardKmClTYvbOakK3JRSs0erzLNxIpvWxL2KfBZ4gINAd3q003ReAG2bm'
+app.config['STRIPE_PUBLISHABLE_KEY'] = 'pk_test_51MMRkOSEzPBlgs1Ck16EBWSuxXEjbbbOKRtsACj65hPmP2B2gfy1BeWYGsfOxp60IyZM7A40h8tJzTbgCHr1vVeC00kwxztzSQ'
 
 # Initialize the database, migration tool, and socket IO
 db = SQLAlchemy(app)

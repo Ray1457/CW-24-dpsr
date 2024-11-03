@@ -1,12 +1,16 @@
 from Tool import app, db, socketio
 from Tool.models import User, Clan, Message, Case
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_socketio import join_room, emit, send, leave_room
 from werkzeug.security import generate_password_hash, check_password_hash
 import string
 import random
 from datetime import datetime 
+import stripe
+
+
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
 # Utility to generate unique clan codes
 def generate_clan_code(length=6):
@@ -107,16 +111,36 @@ def play():
     return render_template('play.html', cases = cases)
 
 
+# Single-player play route
 @app.route('/play/single/<cid>')
 def play_single(cid):
-    return render_template('index.html')
+    case = db.session.get(Case, cid)
+    return render_template('play_single.html', case=case)
+
+# Single-player video view route
+@app.route('/vid/single/<cid>')
+def vid_single(cid):
+    case = db.session.get(Case, cid)
+    session[f'vid_single_{cid}'] = True  # Session tracking to avoid repeated redirects
+    return render_template('video_player_single.html', case=case)
+
 
 
 @app.route('/play/multi/<clan_code>')
 def play_multi(clan_code):
+    if not session.get(f'vid_{clan_code}', False):
+        return redirect(url_for('vid_multi', clan_code = clan_code))
     clan = Clan.query.filter_by(room_code = clan_code).first()      
     print('clm', clan.messages)
     return render_template('play_multi.html', clan = clan, room = clan)
+
+
+@app.route('/vid/multi/<clan_code>')
+def vid_multi(clan_code):
+    clan = Clan.query.filter_by(room_code = clan_code).first()
+    case = db.session.get(Case, clan.case_id)
+    session[f'vid_{clan_code}'] = True
+    return render_template('video_player_multi.html', clan = clan, case = case)
 
 @app.route('/clans/<cid>')
 def clans(cid):
@@ -149,7 +173,7 @@ def _add_cases():
             "background_image": "../static/img/case bg/1.png",
             "reward": 1000,
             "locked": False,
-            "video": None
+            "video": "img/case vid/sample.mp4"
         },
         {
             "title": "COMING SOON",

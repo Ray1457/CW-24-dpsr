@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mystify - {{ case.title }}
+{% endblock %}
+
+{% block content %}
+
+    <style>
+        /* Ensure the body and html take full height */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        /* Make sure the parent takes full height */
+        #video-container {
+            position: relative;
+            width: 70%;
+            height: 70%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Make the video take the entire space of the parent */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* You can change this to 'cover' or 'fill' depending on how you want the video to scale */
+        }
+    </style>
+
+    <div class="fixed inset-0 z-[-1]">
+        <img src="../{{ case.background_image }}" alt="Background" class="w-full h-full object-cover brightness-[0.8]">
+    </div>
+
+    <main class="pt-24 flex flex-col md:flex-row justify-center items-center">
+        <div class="flex flex-row md:flex-col items-center">
+            <h1 class="text-6xl max-w-sm text-red-700">{{ case.title }}</h1>
+            <a id="skip-link" href="{{ url_for('play_multi', clan_code=clan.room_code) }}" class="mx-full px-4 py-2 bg-yellow-700 text-2xl rounded-lg flex items-center text-black gap-2 mt-12">
+                SKIP <ion-icon name="play-skip-forward-outline"></ion-icon>
+            </a>
+        </div>
+        <div id="video-container" class="">
+            <video id="video" src="{{ url_for('static', filename = case.video ) }}" controls autoplay >
+            </video>
+        </div>
+    </main>
+
+    <script>
+        // Select the video element
+        const video = document.getElementById('video');
+
+        // Redirect when the video ends
+        video.addEventListener('ended', () => {
+            window.location.href = document.getElementById('skip-link').href;
+        });
+    </script>
+
+  
+
+
+{% endblock %}

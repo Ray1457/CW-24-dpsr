@@ -108,7 +108,7 @@
     {% block content %}
     {% endblock %}
 
-    {% if current_user.is_authenticated and request.endpoint not in ['home', 'login' , 'register'] %}
+    {% if current_user.is_authenticated and request.endpoint not in ['home', 'login' , 'register', 'vid_multi', 'vid_single'] %}
 
     <footer class="fixed bottom-4 left-4 bg-no-repeat bg-contain z-[100]" style="background-image: url('{{ url_for('static', filename='img/assets/gems_box.png') }}'); width: 150px; height: 50px; background-size: 100% 100%;">
         <a href="">
