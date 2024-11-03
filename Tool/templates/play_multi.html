@@ -85,15 +85,15 @@ Mystify - Play Multiplayer
 
             <!-- Clues Grid -->
             <div class="flex flex-wrap w-full items-center justify-center">
-                <div class="clue-card clue-free cursor-pointer"></div>
-                <div class="clue-card clue-free cursor-pointer"></div>
-                <div class="clue-card clue-free cursor-pointer"></div>
-                <div class="clue-card clue-gems cursor-pointer"></div>
-                <div class="clue-card clue-gems cursor-pointer"></div>
+                <button class="clue-dialog-btn"><div class="clue-card clue-free cursor-pointer"></div></button>
+                <button class="clue-dialog-btn"><div class="clue-card clue-free cursor-pointer"></div></button>
+                <button class="clue-dialog-btn"><div class="clue-card clue-free cursor-pointer"></div></button>
+                <button class="clue-dialog-btn"><div class="clue-card clue-gems cursor-pointer"></div></button>
+                <button class="clue-dialog-btn"><div class="clue-card clue-gems cursor-pointer"></div></button>
             </div>
         </div>
     </div>
-    <div class="input-container">
+    <div class="input-container max-w-2xl mx-auto m-4">
         <div class="flex gap-4 items-center">
             <input 
                 type="text" 
@@ -105,6 +105,82 @@ Mystify - Play Multiplayer
             </button>
         </div>
     </div>
+
+
+    <div id="dialog1" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h2 class="text-xl font-bold mb-4">Clue #1</h2>
+            <p class="mb-4">First clue content will appear here</p>
+            <button onclick="closeDialog('dialog1')" class="w-full bg-[#8b7355] text-white py-2 px-4 rounded-lg hover:bg-[#8b7355]/90">Close</button>
+        </div>
+    </div>
+    
+    <div id="dialog2" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h2 class="text-xl font-bold mb-4">Clue #2</h2>
+            <p class="mb-4">Second clue content will appear here</p>
+            <button onclick="closeDialog('dialog2')" class="w-full bg-[#8b7355] text-white py-2 px-4 rounded-lg hover:bg-[#8b7355]/90">Close</button>
+        </div>
+    </div>
+    
+    <div id="dialog3" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h2 class="text-xl font-bold mb-4">Clue #3</h2>
+            <p class="mb-4">Third clue content will appear here</p>
+            <button onclick="closeDialog('dialog3')" class="w-full bg-[#8b7355] text-white py-2 px-4 rounded-lg hover:bg-[#8b7355]/90">Close</button>
+        </div>
+    </div>
+    
+    <div id="dialog4" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h2 class="text-xl font-bold mb-4">Gems Clue #1</h2>
+            <p class="mb-4">First gems clue content will appear here</p>
+            <button onclick="closeDialog('dialog4')" class="w-full bg-[#8b7355] text-white py-2 px-4 rounded-lg hover:bg-[#8b7355]/90">Close</button>
+        </div>
+    </div>
+    
+    <div id="dialog5" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h2 class="text-xl font-bold mb-4">Gems Clue #2</h2>
+            <p class="mb-4">Second gems clue content will appear here</p>
+            <button onclick="closeDialog('dialog5')" class="w-full bg-[#8b7355] text-white py-2 px-4 rounded-lg hover:bg-[#8b7355]/90">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        // Add this to your existing script section
+        function openDialog(dialogId) {
+            document.getElementById(dialogId).style.display = 'flex';
+        }
+    
+        function closeDialog(dialogId) {
+            document.getElementById(dialogId).style.display = 'none';
+        }
+    
+        // Modify the click handlers in your existing ready function
+        $(document).ready(function() {
+            $('.clue-dialog-btn').each(function(index) {
+                $(this).on('click', function() {
+                    const dialogId = `dialog${index + 1}`;
+                    openDialog(dialogId);
+                });
+            });
+    
+            // Close dialog when clicking outside
+            $('.fixed').on('click', function(e) {
+                if (e.target === this) {
+                    $(this).hide();
+                }
+            });
+    
+            // Close dialog with Escape key
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    $('.fixed').hide();
+                }
+            });
+        });
+    </script>
 
     <script>
         const socket = io();
@@ -185,5 +261,4 @@ Mystify - Play Multiplayer
         });
     });
     </script>
-
 {% endblock %}
