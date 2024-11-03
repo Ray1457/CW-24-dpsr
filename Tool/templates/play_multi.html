@@ -28,67 +28,39 @@ Mystify - Play Multiplayer
             background-size: cover;
         }
 
-        /* New message styling */
-        .message {
-            max-width: 80%;
-            margin-block: 8px;
-            padding: 12px;
-            border-radius: 10px;
-            word-wrap: break-word;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        .message {
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #333;
-            margin-right: auto;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @media (max-width: 768px) {
             .clue-card {
                 width: 150px;
             }
-            .message {
-                max-width: 90%;
-            }
         }
     </style>
-<body>
+
     <div class="container mx-auto p-4">
+        <!-- Main Content -->
         <div class="flex flex-col min-h-[80vh]">
-            <div class="parchment-texture flex items-center justify-center mt-16">
-                <div class="max-w-2xl w-full flex-grow mb-4 rounded-lg p-4 min-h-[400px] relative">
-                    <div id="messages" class="max-h-[50vh] overflow-y-auto mx-auto flex flex-col mb-24 overflow-x-hidden">
-                        {% for msg in room.messages %}
-                            {% if msg.user and msg.content %}
-                                <div class="message {% if msg.user.username == current_user.username %}sent{% else %}received{% endif %}">
-                                    <strong>{{ msg.user.username }}</strong>: {{ msg.content }}
-                                </div>
-                            {% else %}
-                                <div class="message received">
-                                    <strong>Unknown</strong>: Message not available
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <div class="bg-[#8b7355]/80 rounded-lg p-3 flex items-center gap-2 mt-auto mx-auto max-w-2xl absolute bottom-4 w-full left-1/2 -translate-x-1/2">
-                        <input id="message-input" type="text" placeholder="Enter your message" class="w-full bg-transparent text-white placeholder-gray-300 focus:outline-none">
-                        <button id="send-message" class="p-2">
-                            <ion-icon name="send-outline" class="text-white text-2xl"></ion-icon>
-                        </button>
-                    </div>
+            <!-- Chat Area -->
+            <div class="parchment-texture flex-grow mb-4 rounded-lg p-4 min-h-[400px] relative">
+                <div id="messages" class="max-h-[50vh] overflow-y-auto w-[90%] mx-auto flex flex-col items-center mb-24 overflow-x-hidden">
+                    <!-- Pre-existing messages -->
+                    {% for msg in room.messages %}
+    {% if msg.user and msg.content %}
+        <div><strong>{{ msg.user.username }}</strong>: {{ msg.content }}</div>
+    {% else %}
+        <!-- Optionally handle undefined cases, or just ignore them -->
+        <div><strong>Unknown</strong>: Message not available</div>
+    {% endif %}
+{% endfor %}
+
+                </div>
+                <div class="bg-[#8b7355]/80 rounded-lg p-3 flex items-center gap-2 mt-auto mx-auto max-w-2xl absolute bottom-4 w-full left-1/2 -translate-x-1/2">
+                    <input id="message-input" type="text" placeholder="Enter your message " class="w-full bg-transparent text-white placeholder-gray-300 focus:outline-none">
+                    <button id="send-message" class="p-2">
+                        <ion-icon name="send-outline" class="text-white text-2xl"></ion-icon>
+                    </button>
                 </div>
             </div>
 
+            <!-- Clues Grid -->
             <div class="flex flex-wrap w-full items-center justify-center">
                 <div class="clue-card clue-free cursor-pointer"></div>
                 <div class="clue-card clue-free cursor-pointer"></div>
@@ -101,83 +73,81 @@ Mystify - Play Multiplayer
 
     <script>
         const socket = io();
-        const roomCode = '{{ room.room_code }}';
-        const currentUser = '{{ current_user.username }}';
+        const roomCode = '{{ room.room_code }}'; // Get the room code from the server
 
+        // Join the room
         socket.emit('join', { room: roomCode });
 
-        socket.on('message', function(data) {
-            if (data.user) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${data.user === currentUser ? 'sent' : 'received'}`;
-                messageDiv.innerHTML = `<strong>${data.user}</strong>: ${data.message}`;
-                
-                document.getElementById('messages').appendChild(messageDiv);
-                scrollToBottom();
-            }
-        });
+        // Handle incoming messages
+        socket.on('message', function (data) {
 
-        function scrollToBottom() {
+            if (data.user)  {
+            $('#messages').append(`<div><strong>${data.user}</strong>: ${data.message}</div>`);
+            // Auto-scroll to the latest message
             const messageDiv = document.getElementById('messages');
             messageDiv.scrollTop = messageDiv.scrollHeight;
-        }
-
-        document.getElementById('send-message').addEventListener('click', sendMessage);
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
             }
         });
 
-        function sendMessage() {
-            const messageInput = document.getElementById('message-input');
-            const message = messageInput.value.trim();
-            
+        // Send a message
+        $('#send-message').on('click', function () {
+            const message = $('#message-input').val();
             if (message) {
                 socket.emit('message', { room: roomCode, message: message });
-                messageInput.value = '';
+                $('#message-input').val(''); // Clear the input
             }
-        }
-
-        // Clue handling
-        const caseId = '{{ room.case_id }}';
-
-        function fetchClue(clueNo) {
-            fetch('/get-clue', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    case_id: caseId,
-                    clue_no: clueNo
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    showFlashMessage(data.error);
-                } else {
-                    console.log(data.clue);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showFlashMessage('An error occurred while fetching the clue');
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.clue-free').forEach((element, index) => {
-                element.addEventListener('click', () => fetchClue(index + 1));
-            });
-
-            document.querySelectorAll('.clue-gems').forEach((element, index) => {
-                element.addEventListener('click', () => fetchClue(index + 4));
-            });
-
-            scrollToBottom();
         });
+
+        // Submit message when pressing "Enter"
+        $('#message-input').on('keypress', function (e) {
+            if (e.which == 13) {
+                $('#send-message').click();
+            }
+        });
+
+        // Auto-scroll to the bottom of the messages on load to show the latest messages
+        window.onload = function() {
+            const messageDiv = document.getElementById('messages');
+            messageDiv.scrollTop = messageDiv.scrollHeight;
+        };
+
+        const caseId = '{{ room.case_id }}';  // Assuming you have access to case ID in the room context
+
+    // Function to send AJAX request and update the clue card
+    function fetchClue(clueNo) {
+        $.ajax({
+            type: 'POST',
+            url: '/get-clue',
+            data: {
+                case_id: caseId,
+                clue_no: clueNo
+            },
+            success: function(response) {
+                // Update the clue card content with the received clue
+                console.log(response.clue)
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                response = jqXHR.responseJSON
+                showFlashMessage(response.error)
+            }
+        });
+    }
+
+    // Adding event listeners for each clue card
+    $(document).ready(function() {
+        $('.clue-free').each(function(index) {
+            const clueNo = index + 1;  // Clue numbers start from 1
+            $(this).on('click', function() {
+                fetchClue(clueNo);  // Call the function to fetch the clue for this card
+            });
+        });
+
+        $('.clue-gems').each(function(index) {
+            const clueNo = index + 4;  // Clue numbers for gems start from 4
+            $(this).on('click', function() {
+                fetchClue(clueNo);  // Call the function to fetch the clue for this card
+            });
+        });
+    });
     </script>
-</body>
 {% endblock %}
