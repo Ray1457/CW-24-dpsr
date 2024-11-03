@@ -312,12 +312,12 @@ def check_clan_code():
 @app.route('/get-clue', methods=['POST'])
 @login_required
 def get_clue():
+    print('data', request.form)  
     case_id = request.form.get('case_id')
     clue_no = int(request.form.get('clue_no'))
     clan_code = (request.form.get('clan_code' , None))
 
 
-    print('data', request.form)  
 
 
 
