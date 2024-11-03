@@ -96,12 +96,12 @@ Mystify - Play Multiplayer
     <div class="input-container max-w-2xl mx-auto m-4">
         <div class="flex gap-4 items-center">
             <input 
-                type="text"  id="ans-input"
+                type="text" 
                 placeholder="Enter Correct Answer" 
                 class="flex-grow bg-[#8b7355]/80 text-white placeholder-gray-300 p-3 rounded-lg focus:outline-none"
             >
-            <button class="bg-[#cd7f32] text-white px-6 py-3 rounded-lg" onclick="checkAnswer()">
-                Submit
+            <button class="bg-[#cd7f32] text-white px-6 py-3 rounded-lg">
+                Label
             </button>
         </div>
     </div>
@@ -193,7 +193,7 @@ Mystify - Play Multiplayer
         socket.on('message', function (data) {
 
             if (data.user)  {
-            $('#messages').append(`<div class="message"><strong>${data.user}</strong>: ${data.message}</div>`);
+            $('#messages').append(`<div><strong>${data.user}</strong>: ${data.message}</div>`);
             // Auto-scroll to the latest message
             const messageDiv = document.getElementById('messages');
             messageDiv.scrollTop = messageDiv.scrollHeight;
@@ -222,118 +222,43 @@ Mystify - Play Multiplayer
             messageDiv.scrollTop = messageDiv.scrollHeight;
         };
 
-</script>
-<script>
-    $(document).ready(function() {
-        // Add click listeners to clue cards to fetch clues every time they are clicked
-        $('.clue-dialog-btn').each(function(index) {
-            $(this).on('click', function() {
-                const dialogId = `dialog${index + 1}`;
-                const clueNo = index + 1; // Clue numbers start from 1
+        const caseId = '{{ room.case_id }}';  // Assuming you have access to case ID in the room context
 
-                // Fetch the clue before opening the dialog
-                fetchClue(clueNo);
-
-                // Open the dialog after fetching the clue
-                openDialog(dialogId);
-            });
-        });
-
-        // Close dialog when clicking outside
-        $('.fixed').on('click', function(e) {
-            if (e.target === this) {
-                $(this).hide();
-            }
-        });
-
-        // Close dialog with Escape key
-        $(document).on('keydown', function(e) {
-            if (e.key === 'Escape') {
-                $('.fixed').hide();
-            }
-        });
-    });
-
-    // Fetch clue function
-    const caseId = "{{ room.case_id }}";
-    const clan  = "{{ clan.room_code }}";
+    // Function to send AJAX request and update the clue card
     function fetchClue(clueNo) {
         $.ajax({
             type: 'POST',
             url: '/get-clue',
             data: {
                 case_id: caseId,
-                clue_no: clueNo,
-                clan_code : clan
+                clue_no: clueNo
             },
             success: function(response) {
-                // Display fetched clue content in the corresponding dialog
-                const dialogContent = document.querySelector(`#dialog${clueNo} p`);
-                if (dialogContent) {
-                    dialogContent.textContent = response.clue;
-                }
-
-                $('#messages').append(`<div><strong>System</strong>: Clue ${clueNo} has been unlocked </div>`);
+                // Update the clue card content with the received clue
+                console.log(response.clue)
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                const response = jqXHR.responseJSON;
-                showFlashMessage(response.error);
+                response = jqXHR.responseJSON
+                showFlashMessage(response.error)
             }
         });
     }
- // Assuming you have access to case ID in the room context
 
-    // Function to check answer
-    function checkAnswer() {
-        const answer = $('#ans-input').val().trim();
-        if (answer) {
-            $.ajax({
-                type: 'POST',
-                url: '/check-ans',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    case_id: caseId,
-                    answer: answer
-                }),
-                success: function(response) {
-                    $('#answer-input').val(''); // Clear the input field
-                    if (response.status === "success") {
-                        showFlashMessage(`Congratulations! You gained ${response.reward} aura`);
-                        $('#messages').append(`<div><strong>System</strong>: Correct answer! Everyone has been awarded ${response.reward} aura. This clan will now be deleted </div>`);
-                        
-                    }
-                },
-                error: function(jqXHR) {
-                    const response = jqXHR.responseJSON;
-                    alert(response.message || "An error occurred while checking the answer.");
-                }
+    // Adding event listeners for each clue card
+    $(document).ready(function() {
+        $('.clue-free').each(function(index) {
+            const clueNo = index + 1;  // Clue numbers start from 1
+            $(this).on('click', function() {
+                fetchClue(clueNo);  // Call the function to fetch the clue for this card
             });
-        } else {
-            alert("Please enter an answer.");
-        }
-    }
+        });
 
-    function deleteClan() {
-    const roomCode = clan
-    fetch(`/del/${roomCode}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = "{{ url_for('home') }}";
-            // Optionally, you can add logic here to update the UI
-        }
-    })
-    .catch(error => {
-        console.error("Error deleting clan:", error);
+        $('.clue-gems').each(function(index) {
+            const clueNo = index + 4;  // Clue numbers for gems start from 4
+            $(this).on('click', function() {
+                fetchClue(clueNo);  // Call the function to fetch the clue for this card
+            });
+        });
     });
-}
-
-
-</script>
-
+    </script>
 {% endblock %}
