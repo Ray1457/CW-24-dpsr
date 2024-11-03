@@ -5,32 +5,41 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Ionicons for icons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    
     <style>
+        /* Use url_for for static file paths */
         @font-face {
             font-family: 'Hotalie';
-            src: url('../static/font/Hotalie.ttf') format('truetype');
+            src: url('{{ url_for('static', filename='font/Hotalie.ttf') }}') format('truetype');
         }
         @font-face {
             font-family: 'CloisterBlack';
-            src: url('../static/font/CloisterBlack.ttf') format('truetype');
+            src: url('{{ url_for('static', filename='font/CloisterBlack.ttf') }}') format('truetype');
         }
         @font-face {
             font-family: 'Artifact';
-            src: url('../static/font/Artifact.otf') format('truetype');
+            src: url('{{ url_for('static', filename='font/Artifact.otf') }}') format('truetype');
         }
         @font-face {
             font-family: 'Fontdinerdotcom';
-            src: url('../static/font/Fontdinerdotcom.ttf') format('truetype');
+            src: url('{{ url_for('static', filename='font/Fontdinerdotcom.ttf') }}') format('truetype');
         }
-
         @font-face {
             font-family: 'Gregean Bush';
-            src: url('../static/font/gregean-brush.regular.ttf') format('truetype');
+            src: url('{{ url_for('static', filename='font/gregean-brush.regular.ttf') }}') format('truetype');
         }
 
+        /* Classes for fonts */
         .font-hotalie {
             font-family: 'Hotalie', cursive;
         }
@@ -43,31 +52,29 @@
         .font-fontdinerdotcom {
             font-family: 'Fontdinerdotcom', cursive;
         }
-
         .font-gregeanbush {
             font-family: 'Gregean Bush', cursive;
         }
 
+        /* Image and icon settings */
         img {
             -webkit-user-select: none; /* For Safari */
-        -moz-user-select: none;    /* For Firefox */
-        -ms-user-select: none;     /* For Internet Explorer/Edge */
-        user-select: none;         /* Standard */
+            -moz-user-select: none;    /* For Firefox */
+            -ms-user-select: none;     /* For Internet Explorer/Edge */
+            user-select: none;         /* Standard */
         }
 
         ion-icon {
             -webkit-user-select: none; /* For Safari */
-        -moz-user-select: none;    /* For Firefox */
-        -ms-user-select: none;     /* For Internet Explorer/Edge */
-        user-select: none;         /* Standard */
+            -moz-user-select: none;    /* For Firefox */
+            -ms-user-select: none;     /* For Internet Explorer/Edge */
+            user-select: none;         /* Standard */
         }
-
-
     </style>
 </head>
-<body class="bg-black min-h-screen font-gregeanbush relative overflow-x-hidden">
+<body class="bg-[#4b2f07] min-h-screen font-gregeanbush relative overflow-x-hidden">
     
-    
+    <!-- Navigation Bar -->
     <nav class="relative z-10 md:top-6 w-full">
         <div class="hidden md:flex justify-end space-x-1 text-xl lg:text-2xl absolute right-6">
             <a href="#home" class="text-white hover:text-gray-300 px-4 py-2">Home</a>
@@ -85,6 +92,7 @@
             </button>
         </div>
 
+        <!-- Mobile Menu -->
         <div id="mobileMenu" class="hidden md:hidden absolute right-2 top-16 w-48 bg-black/80 rounded-lg">
             <div class="flex flex-col p-4 space-y-4">
                 <a href="#home" class="text-white hover:text-gray-300">Home</a>
@@ -96,8 +104,18 @@
         </div>
     </nav>
 
+    <!-- Content Block for Jinja -->
     {% block content %}
     {% endblock %}
+
+    <footer class="absolute bottom-4 left-4 bg-no-repeat bg-contain" style="background-image: url('../static/img/assets/gems_box.png'); width: 150px; height: 50px; background-size: 100% 100%;">
+        <div class="flex items-center justify-center h-full mt-2">
+            <p class="font-semibold text-white">Aura</p>
+            <img src="../static/img/assets/gems.png" class="w-6 h-6 mr-2">
+            <span class="text-xl text-white hatolie">50</span>
+        </div>
+      </footer>
+    
 
     <!-- Flash Message Alert -->
     <div id="flashAlert" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black font-bold text-xl px-6 py-4 rounded-lg shadow-lg z-50 hidden">
@@ -106,6 +124,7 @@
     </div>
 
     <script>
+        // Toggle mobile menu
         const menuBtn = document.getElementById('menuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         
@@ -130,9 +149,12 @@
             document.getElementById('flashAlert').classList.add('hidden');
         }
 
-        // Sample flash message for demonstration (replace with backend flash messages)
+        // Display flash messages from backend
+        function loadFlashMsgs() {
         const flashMessages = {{ get_flashed_messages() | tojson | safe }};
         flashMessages.forEach(message => showFlashMessage(message));
+        }
+        loadFlashMsgs();
     </script>
 </body>
 </html>

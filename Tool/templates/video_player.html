@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystify - {{ case.title }}</title>
+</head>
+<body>
+    <video src="{{ case.video }}" class="h-screen w-screen object-contain relative">
+        <a href="{{ url_for(rfunc, cid = cid) }}">
+            SKIP
+        </a>
+    </video>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+Mystify - Clans
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+    .team {
+          background-color: rgba(75, 47, 7, 0.5);
+       }
+</style>
+
+  <main class="relative grid place-items-center bg-cover bg-top bg-no-repeat mx-auto" style="background-image: url(../static/img/assets/clan\ bg.png);">
+    <div class="flex absolute top-[5rem] w-full justify-around">
+      <button onclick="openDialog()" class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25] transition-colors" style="background-color: rgba(75, 47, 7, 0.5);">Enter Code</button>
+      <a href="{{ url_for('create_clan', cid = cid) }}" class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25]" style="background-color: rgba(75, 47, 7, 0.5);">Create Team</a>
+    </div>
+    
+    <dialog id="enterCodeDialog" class="rounded-lg p-12 max-w-3xl mx-auto bg-center relative" style="background-image: url('../static/img/assets/dialog_bg.png');">
+        <button onclick="closeDialog()" class="text-xl text-black p-2 rounded absolute right-4 top-4"><ion-icon name="close-outline"></ion-icon></button>
+        <h2 class="text-5xl font-semibold mb-4">Enter Team Code</h2>
+        <input type="text" placeholder="Enter code" class="w-full px-4 py-2 rounded-lg mb-4 bg-[#8c632a] text-3xl" />
+        <div class="flex flex-col w-full gap-2 mt-4">
+            <button class="btn bg-[#4B2F07] text-2xl text-white px-4 py-2 rounded">Join</button>
+        </div>
+    </dialog>
+
+
+    <div class="mt-40 w-full pb-8">
+      <div class="flex gap-16 items-center justify-center">
+        <button id="prevButton" onclick="prevPage()" style="display: none;"> <img src="../static/img/assets/chevron.svg" alt="" class="rotate-[180deg]"></button>
+        <h1 class="text-[96px] text-[#4B2F07]">Join Team</h1>
+        <button id="nextButton" onclick="nextPage()"><img src="../static/img/assets/chevron.svg" alt=""></button>
+      </div>
+      <div id="teamList" class="max-w-2xl text-2xl mx-auto p-4 space-y-2">
+        <!--team items here via js-->
+      </div>
+
+      <div class="flex justify-center mt-4 text-white text-2xl">
+        <span id="pageTracker">Page 1 of 1</span>
+      </div>
+    </div>
+  </main>
+
+  
+  <script>
+    const teamsPerPage = 4;
+    let currentPage = 1;
+    const teams = {{ clans_clean | tojson }};
+//     const teams = [
+//       { id: 1, name: "Team A", members: "1/4" },
+//       { id: 2, name: "Team B", members: "2/4" }
+//   ]
+
+
+    console.log(teams);
+
+    function displayTeams() {
+      const teamList = document.getElementById("teamList");
+      teamList.innerHTML = "";
+      const start = (currentPage - 1) * teamsPerPage;
+      const end = start + teamsPerPage;
+      const currentTeams = teams.slice(start, end);
+
+      currentTeams.forEach((team, index) => {
+        const teamItem = document.createElement("div");
+        teamItem.classList.add("flex", "items-center", "justify-between", "rounded-full", "px-4", "py-2", "text-white", "team");
+        teamItem.innerHTML = `
+          <div class="flex items-center gap-4">
+              <span class="font-medium">${start + index + 1}.</span>
+              <span class="font-medium">${team.name}</span>
+          </div>
+          <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                  <img src="../static/img/assets/people.svg" class="w-12">
+                  <span>${team.members}</span>
+              </div>
+              <form action="/join_clan/${team.code}" method="POST">
+              <button type="submit" class="px-3 py-1 rounded hover:underline">Join Team</button>
+              </form>
+          </div>
+        `;
+        teamList.appendChild(teamItem);
+      });
+
+      document.getElementById("pageTracker").innerText = `Page ${currentPage} of ${Math.ceil(teams.length / teamsPerPage)}`;
+      toggleButtons();
+    }
+
+    function nextPage() {
+      if (currentPage * teamsPerPage < teams.length) {
+        currentPage++;
+        displayTeams();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        displayTeams();
+      }
+    }
+
+    function toggleButtons() {
+      const prevButton = document.getElementById("prevButton");
+      const nextButton = document.getElementById("nextButton");
+      const totalPages = Math.ceil(teams.length / teamsPerPage);
+      
+
+      prevButton.style.display = currentPage > 1 ? "block" : "none";
+
+      nextButton.style.display = currentPage < totalPages ? "block" : "none";
+    }
+
+    function openDialog() {
+      const dialog = document.getElementById("enterCodeDialog");
+      if (dialog) dialog.showModal();
+    }
+
+    function closeDialog() {
+      const dialog = document.getElementById("enterCodeDialog");
+      if (dialog) dialog.close();
+    }
+
+    displayTeams();
+  </script>
+
+
+{% endblock %}

@@ -135,10 +135,10 @@ Mystify - Play
 
     function startGame(mode, level) {
         if (mode === "multi") {
-            window.location.href = "{{ url_for('clans', cid = level)}}";
+            window.location.href = "{{ url_for('clans', cid = 1)}}";
         }
         else if (mode === "single") {
-            window.location.href = "{{ url_for('play_single' , cid = level) }}";
+            window.location.href = "{{ url_for('play_single' , cid = 1) }}";
         }
     }
 

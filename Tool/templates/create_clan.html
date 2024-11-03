@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Mystify - Create a Clan 
+{% endblock %}
+
+{% block content %}
+<main class="relative grid place-items-center bg-cover bg-top bg-no-repeat mx-auto"
+style="background-image: url(../static/img/assets/clan\ bg.png);"
+> 
+    <div class="flex absolute top-16 w-full justify-around">
+      <button class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25] transition-colors" style="background-color: rgba(75, 47, 7, 0.5);">Enter code</button>
+      <button href="create.html" class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25]" style="background-color: rgba(75, 47, 7, 0.5);">Back</button>
+    </div>
+    <div class="mt-40 flex flex-col items-center">
+        <h1 class="text-[96px] text-[#4B2F07]">Create Team</h1>
+      <div class="max-w-2xl text-2xl mx-auto p-4">
+        <form action="{{url_for('create_clan_post', case_id = cid )}}" class="flex flex-col items-end justify-center gap-8" method="post">
+            <div class="flex flex-col gap-2 items-center">  <!-- Changed flex direction to column -->
+                <div class="flex gap-4">
+                    <label for="team_name" class="text-3xl font-semibold text-white">Team Name :</label>
+                    <input name="name"  id="team_name" type="text" class="rounded-full px-4 py-2" style="background-color: rgba(75, 47, 7, 0.5);">
+                </div>
+                <p id="name_status" class="text-white text-sm mt-1"></p> <!-- Smaller text and less gap -->
+            </div>
+        
+            <div class="flex flex-col gap-2 items-center"> <!-- Changed flex direction to column -->
+                <div class="flex gap-4">
+                    <label for="team_code" class="text-3xl font-semibold text-white">Generate Code :</label>
+                    <input name="code" id="team_code" type="text" class="rounded-full px-4 py-2" style="background-color: rgba(75, 47, 7, 0.5);">
+                </div>
+                <p id="code_status" class="text-white text-sm mt-1"></p> <!-- Smaller text and less gap -->
+            </div>
+        
+            <div class="flex gap-4">
+                <label for="" class="text-3xl font-semibold text-white">Enter max No. of players :</label>
+                <input name="max_n" type="number" class="rounded-full px-4 py-2" style="background-color: rgba(75, 47, 7, 0.5);">
+            </div>
+        
+            <button class="mt-8 px-16 py-8 text-center rounded-lg mx-auto font-bold text-white text-4xl tracking-[0.125rem]" style="background-color: rgba(75, 47, 7, 0.5);">Create</button>
+        </form>
+        
+      </div>
+    </div>
+  </main>
+
+  <footer class="absolute bottom-4 left-4 bg-no-repeat bg-contain" style="background-image: url('../static/img/assets/gems_box.png'); width: 150px; height: 50px; background-size: 100% 100%;">
+    <div class="flex items-center justify-center h-full mt-2">
+        <p class="font-semibold text-white">Aura</p>
+        <img src="../static/img/assets/gems.png" class="w-6 h-6 mr-2">
+        <span class="text-xl text-white hatolie">50</span>
+    </div>
+  </footer>
+
+<script>
+  let nameTimeout, codeTimeout;
+
+  // Function to send POST request to check clan name availability
+  function checkClanName() {
+    const teamName = document.getElementById("team_name").value;
+    if (teamName) {
+      fetch('/check-clan-name', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: teamName })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("name_status").innerText = data.message;
+      });
+    }
+  }
+
+  // Function to send POST request to check clan code availability
+  function checkClanCode() {
+    const teamCode = document.getElementById("team_code").value;
+    if (teamCode) {
+      fetch('/check-clan-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: teamCode })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("code_status").innerText = data.message;
+      });
+    }
+  }
+
+  // Event listeners for user inactivity detection
+  document.getElementById("team_name").addEventListener('input', function () {
+    clearTimeout(nameTimeout);
+    nameTimeout = setTimeout(checkClanName, 500); // 500 seconds
+  });
+
+  document.getElementById("team_code").addEventListener('input', function () {
+    clearTimeout(codeTimeout);
+    codeTimeout = setTimeout(checkClanCode, 500); // 500 seconds
+  });
+</script>
+
+{% endblock %}

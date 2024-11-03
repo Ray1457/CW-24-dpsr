@@ -36,7 +36,7 @@ class Case(db.Model):
     title = db.Column(db.String(255), nullable=False)  # Title for the case/chapter
     description = db.Column(db.Text, nullable=False)    # Detailed description or storyline
     answer = db.Column(db.String, nullable=False)        # Storing answers (JSON or comma-separated)
-    clues = db.Column(db.Text, nullable=True)          
+    clues = db.Column(db.PickleType, nullable=True)          
     cover_image = db.Column(db.String(255))             # Path or URL to cover image
     background_image = db.Column(db.String(255))        # Background image for the case/chapter
     reward = db.Column(db.Integer, default=0)      # Points or rewards for completion
@@ -48,17 +48,20 @@ class Case(db.Model):
 
 
 
-class Room(db.Model):
-    __tablename__ = 'rooms'
-
+class Clan(db.Model):
+    __tablename__ = 'clans'
     id = db.Column(db.Integer, primary_key=True)
+    name = room_code = db.Column(db.String, unique=True, nullable=False)
+    max_users = db.Column(db.Integer)
     room_code = db.Column(db.String(10), unique=True, nullable=False)
-    case_id = db.Column(db.Integer, db.ForeignKey('cases.id'), nullable=False)
+    case_id = db.Column(db.Integer, db.ForeignKey('cases.id', ondelete='CASCADE'), nullable=False)
 
     # Relationships
-    case = db.relationship('Case', backref=db.backref('rooms', lazy=True))
-    users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'))
-    messages = db.relationship('Message', backref='room', lazy=True)
+    case = db.relationship('Case', backref=db.backref('rooms', lazy=True, cascade='all, delete-orphan'))
+    
+    # Cascade delete the association with users and messages when a clan is deleted
+    users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'), cascade="all, delete")
+    messages = db.relationship('Message', backref='room', lazy=True, cascade="all, delete-orphan")
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -66,16 +69,16 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    room_id = db.Column(db.Integer, db.ForeignKey('rooms.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
+    room_id = db.Column(db.Integer, db.ForeignKey('clans.id', ondelete='CASCADE'))
 
     # Relationships
-    user = db.relationship('User', backref=db.backref('messages', lazy=True))
-    # room = db.relationship('Room', backref=db.backref('messages', lazy=True))  # This is already defined
+    user = db.relationship('User', backref=db.backref('messages', lazy=True, cascade='all, delete-orphan'))
+
 
 # Association table for users in rooms
 room_users = db.Table('room_users',
-    db.Column('room_id', db.Integer, db.ForeignKey('rooms.id'), primary_key=True),
+    db.Column('room_id', db.Integer, db.ForeignKey('clans.id'), primary_key=True),
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
 )
 
