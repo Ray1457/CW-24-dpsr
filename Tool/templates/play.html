@@ -57,14 +57,14 @@ Mystify - Play
             <h1 class="gregean_bush text-red-700 text-8xl rotate-[3.42deg]">{{ case.title }}</h1>
             <p class="text-2xl font-semibold mb-8">{{ case.description }}</p>
             {% if not case.locked %}
-            <div class="flex items-center ga">
+            <div class="flex items-center gap-6">
                 <button onclick="openGameDialog('gameDialog{{ loop.index }}')" class="bg-gray-800 bg-opacity-50 hover:bg-opacity-70 text-white px-12 py-3 rounded-lg transition-all duration-300 text-3xl">
                     Play
                 </button>
-                <span class="bg-yellow-200 rounded-lg flex items-center justify-center w-28 mb-4">
+                <span class="bg-yellow-200 rounded-lg flex items-center justify-center w-28 px-2 mb-2">
                     <p class='font-bold text-lg tracking-[0.1rem]'>Aura</p>
                     <img src="../static/img/assets/gems.png" class="h-10">
-                    <p class="font-bold text-lg">{{ case.reward }}</p>
+                    <p class="font-bold text-lg">+{{ case.reward }}</p>
                 </span>
             </div>
             {% endif %}
