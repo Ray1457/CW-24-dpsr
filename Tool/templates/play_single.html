@@ -1,57 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}
+Mystify - Play Single
+{% endblock %}
+
+{% block content %}
+    <style>
+        .clue-card {
+            background: url('{{ url_for('static', filename='img/assets/clue.png') }}') no-repeat center;
+            background-size: contain;
+            aspect-ratio: 1;
+            width: 200px;
+            position: relative;
+            margin: 10px;
+        }
+
+        .clue-gems {
+            background: url('{{ url_for('static', filename='img/assets/gems clue.png') }}') no-repeat center;
+            background-size: contain;
+            width: 200px;
+            position: relative;
+            margin: 10px;
+        }
+
+        .parchment-texture {
+            background: url('{{ url_for('static', filename='img/assets/chat bg.png') }}') no-repeat center;
+            background-size: cover;
+        }
+
+        @media (max-width: 768px) {
+            .clue-card {
+                width: 150px;
+            }
+        }
+    </style>
+
     <div class="bg-[#3D2213] min-h-screen flex flex-col justify-center p-4 md:p-6 lg:p-8">
-        <div class="flex flex-col sm:flex-row justify-center gap-8 sm:gap-4 md:gap-8 lg:gap-16 mb-8 sm:mb-4 md:mb-8 lg:mb-16">
+        <!-- Clues Grid Layout -->
+        <div class="flex flex-col sm:flex-row justify-center gap-8 sm:gap-4 md:gap-8 lg:gap-16 mb-8 sm:mb-4 md:mb-4 lg:mb-">
+            <!-- Clues Display -->
             <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
-                <img src="Group26.png" alt="Clue Background" class="w-full h-full absolute top-0 left-0 object-cover"/>
-                <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
-                </div>
+                <div class="clue-card clue-free cursor-pointer"></div>
             </div>
             <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
-                <img src="Group26.png" alt="Clue Background" class="w-full h-full absolute top-0 left-0 object-cover"/>
-                <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
-                </div>
+                <div class="clue-card clue-free cursor-pointer"></div>
             </div>
             <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
-                <img src="Group26.png" alt="Clue Background" class="w-full h-full absolute top-0 left-0 object-cover"/>
-                <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
-                </div>
-            </div>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row justify-center gap-8 sm:gap-4 md:gap-8 lg:gap-16 mb-8 sm:mb-4 md:mb-8 lg:mb-16">
-            <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
-                <img src="Group522-4.png" alt="Clue Background" class="w-full h-full absolute top-0 left-0 object-cover"/>
-                <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
-                </div>
-            </div>
-            <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
-                <img src="Group522-4.png" alt="Clue Background" class="w-full h-full absolute top-0 left-0 object-cover"/>
-                <div class="w-full h-full flex flex-col items-center justify-center relative z-10">
-                </div>
+                <div class="clue-card clue-free cursor-pointer"></div>
             </div>
         </div>
 
+        <div class="flex flex-col sm:flex-row justify-center gap-8 sm:gap-4 md:gap-8 lg:gap-16 mb-8 sm:mb-4 md:mb-8 lg:mb-16">
+            <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
+                <div class="clue-card clue-gems cursor-pointer"></div>
+            </div>
+            <div class="w-full sm:w-48 md:w-56 lg:w-64 h-80 sm:h-48 md:h-56 lg:h-64 relative">
+                <div class="clue-card clue-gems cursor-pointer"></div>
+            </div>
+        </div>
+
+        <!-- Answer Input Section -->
         <div class="flex flex-col sm:flex-row justify-center items-center gap-4 px-4 sm:px-0">
             <div class="relative w-full sm:w-[400px] md:w-[500px] lg:w-[600px]">
                 <input
                     type="text"
                     placeholder="Enter Correct Answer"
-                    class="w-full py-2 sm:py-3 px-4 sm:px-6 bg-[#F5E6D3] border-2 border-[#3D2213] text-[#3D2213] placeholder-[#3D2213]"
+                    class="w-full py-2 sm:py-3 px-4 sm:px-6 bg-[#F5E6D3] border-2 border-[#3D2213] text-[#3D2213] placeholder-[#3D2213] rounded-lg focus:outline-none"
+                    id="answer-input"
                 />
             </div>
-            <button class="w-full sm:w-auto bg-[#CD853F] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full hover:bg-[#A0522D]">
-                Label
+            <button class="w-full sm:w-auto bg-[#CD853F] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full hover:bg-[#A0522D]" id="submit-answer">
+                Submit
             </button>
         </div>
     </div>
-</body>
-</html>
+
+
+
+<script>
+    const caseId = '{{ case.id }}'; // Assuming you have access to case ID in the room context
+
+    // Function to check answer
+    function checkAnswer() {
+        const answer = $('#answer-input').val().trim();
+        if (answer) {
+            $.ajax({
+                type: 'POST',
+                url: '/check-ans',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    case_id: caseId,
+                    answer: answer
+                }),
+                success: function(response) {
+                    alert(response.message); // Display the success or error message
+                    $('#answer-input').val(''); // Clear the input field
+                    if (response.status === "success") {
+                        console.log("Reward:", response.reward);
+                        showFlashMessage(`Congratulations! You gained ${response.reward} aura`)
+                    }
+                },
+                error: function(jqXHR) {
+                    const response = jqXHR.responseJSON;
+                    alert(response.message || "An error occurred while checking the answer.");
+                }
+            });
+        } else {
+            alert("Please enter an answer.");
+        }
+    }
+
+    // Adding event listeners for each clue card
+    $(document).ready(function() {
+        $('.clue-free').each(function(index) {
+            const clueNo = index + 1;
+            $(this).on('click', function() {
+                fetchClue(clueNo);
+            });
+        });
+
+        $('.clue-gems').each(function(index) {
+            const clueNo = index + 4;
+            $(this).on('click', function() {
+                fetchClue(clueNo);
+            });
+        });
+
+        // Handle answer submission
+        $('#submit-answer').on('click', function() {
+            checkAnswer();
+        });
+    });
+
+    // Function to send AJAX request and update the clue card
+    function fetchClue(clueNo) {
+        $.ajax({
+            type: 'POST',
+            url: '/get-clue',
+            data: JSON.stringify({
+                case_id: caseId,
+                clue_no: clueNo
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                console.log(response.clue);
+    
+            },
+            error: function(jqXHR) {
+                const response = jqXHR.responseJSON;
+                alert(response.error || "An error occurred while fetching the clue.");
+            }
+        });
+    }
+</script>
+
+{% endblock %}

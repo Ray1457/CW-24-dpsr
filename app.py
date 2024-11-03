@@ -1,5 +1,5 @@
 from Tool import app, db, socketio
-from Tool.models import User, Clan, Message, Case
+from Tool.models import User, Clan, Message, Case, ClueAccess
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_socketio import join_room, emit, send, leave_room
@@ -114,6 +114,8 @@ def play():
 # Single-player play route
 @app.route('/play/single/<cid>')
 def play_single(cid):
+    if not session.get(f'vid_{cid}', False):
+        return redirect(url_for('vid_single', cid = cid))  
     case = db.session.get(Case, cid)
     return render_template('play_single.html', case=case)
 
@@ -121,7 +123,7 @@ def play_single(cid):
 @app.route('/vid/single/<cid>')
 def vid_single(cid):
     case = db.session.get(Case, cid)
-    session[f'vid_single_{cid}'] = True  # Session tracking to avoid repeated redirects
+    session[f'vid_{cid}'] = True  # Session tracking to avoid repeated redirects
     return render_template('video_player_single.html', case=case)
 
 
@@ -167,7 +169,7 @@ def _add_cases():
         {
             "title": "HAUNTED HOUSE HANG UP",
             "description": "nkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu",
-            "answer": "",  # Placeholder for answers
+            "answer": "test ans",  # Placeholder for answers
             "clues": ["test cl1", "test cl2", "test cl3", "test cl4", "test cl5"],
             "cover_image": "../static/img/case button/1.png",
             "background_image": "../static/img/case bg/1.png",
@@ -305,32 +307,71 @@ def check_clan_code():
         return jsonify({'message': 'Clan code is available.'})
     
 
+
+
 @app.route('/get-clue', methods=['POST'])
+@login_required
 def get_clue():
-    # Get the case_id and clue_no from the POST request
     case_id = request.form.get('case_id')
     clue_no = int(request.form.get('clue_no'))
+    clan_code = (request.form.get('clue_no' , None))
 
+
+
+    # Fetch the case and clues
     case = db.session.get(Case, case_id)
     clues = case.clues
-    if clue_no <= 5:
-        clue = clues[clue_no-1]
+    if clue_no <= len(clues):
+        clue = clues[clue_no - 1]
     else:
         return jsonify({'error': 'Clue not found'}), 404
 
-    if clue_no >= 4:
-        if current_user.gems < 1000:
-            # flash("Insufficient aura")
-            return jsonify({'error': 'Insufficient Aura'}), 404
-        current_user.gems -= 1000
+    # Check if clue has been accessed by this user for this case and clue number
+    existing_access = ClueAccess.query.filter_by(user_id=current_user.id, case_id=case_id, clue_no=clue_no).first()
+
+    # Deduct gems only if it's the user's first time accessing this clue
+    if not existing_access:
+        # Deduct gems if clue number is >= 4
+        if clue_no >= 4:
+            if current_user.gems < 1000:
+                return jsonify({'error': 'Insufficient Aura'}), 404
+            current_user.gems -= 1000
+            db.session.commit()
+
+        # Record the clue access
+        new_access = ClueAccess(user_id=current_user.id, case_id=case_id, clue_no=clue_no)
+        db.session.add(new_access)
+        if (clan_code):
+            clan = Clan.query.filter_by(room_code = clan_code)
+            for user in clan.users:
+                new_access = ClueAccess(user_id=user.id, case_id=case_id, clue_no=clue_no)
+                db.session.add(new_access)
         db.session.commit()
-        return jsonify({'clue': clue}), 200
 
-
-    
     return jsonify({'clue': clue}), 200
    
+@app.route('/check-ans', methods=['POST'])
+@login_required
+def check_answer():
+    data = request.get_json()
+    case_id = data.get('case_id')
+    user_answer = data.get('answer')
 
+    # Retrieve the case from the database
+    case = Case.query.get(case_id)
+    if not case:
+        return jsonify({"status": "error", "message": "Case not found."}), 404
+
+    # Check if the user's answer matches the case answer
+    if user_answer.strip().lower() == case.answer.strip().lower():
+        # Reward user if the answer is correct (optional)
+        reward = case.reward
+        current_user.gems += reward
+        db.session.commit()
+        
+        return jsonify({"status": "success", "message": "Correct answer!", "reward": reward})
+    else:
+        return jsonify({"status": "error", "message": "Incorrect answer. Try again!"}), 200
 
 
 if __name__ == '__main__':
