@@ -58,9 +58,8 @@ Mystify - Play Multiplayer
 
     <div class="container mx-auto p-4">
         <!-- Main Content -->
-        <div class="flex flex-col mt-16">
-            <a class="px-4 text-center py-2 mx-auto bg-yellow-700 hover:bg-yellow-600 transition-colors text-2xl rounded-lg text-black mb-8 w-[400px]">Rewatch Background story</a>
-            <div class="parchment-texture flex items-center justify-center">
+        <div class="flex flex-col min-h-[80vh]">
+            <div class="parchment-texture flex items-center justify-center mt-16">
                 <div class="max-w-2xl w-full flex-grow mb-4 rounded-lg p-4 min-h-[400px] relative">
                     <div id="messages" class="max-h-[50vh] overflow-y-auto mx-auto flex flex-col mb-24 overflow-x-hidden">
                         {% for msg in room.messages %}
@@ -97,12 +96,12 @@ Mystify - Play Multiplayer
     <div class="input-container max-w-2xl mx-auto m-4">
         <div class="flex gap-4 items-center">
             <input 
-                type="text" 
+                type="text"  id="ans-input"
                 placeholder="Enter Correct Answer" 
                 class="flex-grow bg-[#8b7355]/80 text-white placeholder-gray-300 p-3 rounded-lg focus:outline-none"
             >
-            <button class="bg-[#cd7f32] text-white px-6 py-3 rounded-lg">
-                Label
+            <button class="bg-[#cd7f32] text-white px-6 py-3 rounded-lg" onclick="checkAnswer()">
+                Submit
             </button>
         </div>
     </div>
@@ -148,9 +147,9 @@ Mystify - Play Multiplayer
         </div>
     </div>
     
-
     <script>
- function openDialog(dialogId) {
+        // Add this to your existing script section
+        function openDialog(dialogId) {
             document.getElementById(dialogId).style.display = 'flex';
         }
     
@@ -181,7 +180,9 @@ Mystify - Play Multiplayer
                 }
             });
         });
+    </script>
 
+    <script>
         const socket = io();
         const roomCode = '{{ room.room_code }}'; // Get the room code from the server
 
@@ -192,7 +193,7 @@ Mystify - Play Multiplayer
         socket.on('message', function (data) {
 
             if (data.user)  {
-            $('#messages').append(`<div><strong>${data.user}</strong>: ${data.message}</div>`);
+            $('#messages').append(`<div class="message"><strong>${data.user}</strong>: ${data.message}</div>`);
             // Auto-scroll to the latest message
             const messageDiv = document.getElementById('messages');
             messageDiv.scrollTop = messageDiv.scrollHeight;
@@ -221,43 +222,123 @@ Mystify - Play Multiplayer
             messageDiv.scrollTop = messageDiv.scrollHeight;
         };
 
-        const caseId = '{{ room.case_id }}';  // Assuming you have access to case ID in the room context
+</script>
+<script>
+    $(document).ready(function() {
+        // Add click listeners to clue cards to fetch clues every time they are clicked
+        $('.clue-dialog-btn').each(function(index) {
+            $(this).on('click', function() {
+                const dialogId = `dialog${index + 1}`;
+                const clueNo = index + 1; // Clue numbers start from 1
 
-    // Function to send AJAX request and update the clue card
+                // Fetch the clue before opening the dialog
+                fetchClue(clueNo);
+
+                // Open the dialog after fetching the clue
+                openDialog(dialogId);
+            });
+        });
+
+        // Close dialog when clicking outside
+        $('.fixed').on('click', function(e) {
+            if (e.target === this) {
+                $(this).hide();
+            }
+        });
+
+        // Close dialog with Escape key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                $('.fixed').hide();
+            }
+        });
+    });
+
+    // Fetch clue function
+    const caseId = "{{ room.case_id }}";
+    const clan  = "{{ clan.room_code }}";
     function fetchClue(clueNo) {
         $.ajax({
             type: 'POST',
             url: '/get-clue',
             data: {
                 case_id: caseId,
-                clue_no: clueNo
+                clue_no: clueNo,
+                clan_code : clan
             },
             success: function(response) {
-                // Update the clue card content with the received clue
-                console.log(response.clue)
+                // Display fetched clue content in the corresponding dialog
+                const dialogContent = document.querySelector(`#dialog${clueNo} p`);
+                if (dialogContent) {
+                    dialogContent.textContent = response.clue;
+                }
+
+                $('#messages').append(`<div><strong>System</strong>: Clue ${clueNo} has been unlocked </div>`);
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                response = jqXHR.responseJSON
-                showFlashMessage(response.error)
+                const response = jqXHR.responseJSON;
+                showFlashMessage(response.error);
             }
         });
     }
+ // Assuming you have access to case ID in the room context
 
-    // Adding event listeners for each clue card
-    $(document).ready(function() {
-        $('.clue-free').each(function(index) {
-            const clueNo = index + 1;  // Clue numbers start from 1
-            $(this).on('click', function() {
-                fetchClue(clueNo);  // Call the function to fetch the clue for this card
-            });
-        });
+    // Function to check answer
+    function checkAnswer() {
+        const answer = $('#ans-input').val().trim();
+        if (answer) {
+            $.ajax({
+                type: 'POST',
+                url: '/check-ans',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    case_id: caseId,
+                    answer: answer
+                }),
+                success: function(response) {
+                    $('#answer-input').val(''); // Clear the input field
+                    if (response.status === "success") {
+                        showFlashMessage(`Congratulations! You gained ${response.reward} aura`);
+                        $('#messages').append(`<div><strong>System</strong>: Correct answer! Everyone has been awarded ${response.reward} aura. This clan will now be deleted in a few seconds</div>`);
 
-        $('.clue-gems').each(function(index) {
-            const clueNo = index + 4;  // Clue numbers for gems start from 4
-            $(this).on('click', function() {
-                fetchClue(clueNo);  // Call the function to fetch the clue for this card
+                        setTimeout(deleteClan(), 50000);
+                        
+                    }
+                    else {
+                        showFlashMessage(`Wrong Answer`);
+                    }
+                },
+                error: function(jqXHR) {
+                    const response = jqXHR.responseJSON;
+                    alert(response.message || "An error occurred while checking the answer.");
+                }
             });
-        });
+        } else {
+            alert("Please enter an answer.");
+        }
+    }
+
+    function deleteClan() {
+    const roomCode = clan
+    fetch(`/del/${roomCode}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "{{ url_for('home') }}";
+            // Optionally, you can add logic here to update the UI
+        }
+    })
+    .catch(error => {
+        console.error("Error deleting clan:", error);
     });
-    </script>
+}
+
+
+</script>
+
 {% endblock %}

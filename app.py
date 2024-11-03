@@ -153,7 +153,7 @@ def clans(cid):
         clans_clean.append({
             'id' : clan.id,
             'name' : clan.name,
-            'members' : f'{len(clan.users)}/{clan.max_users}',
+            'members' : f'{len(clan.users.all())}/{clan.max_users}',
             'code' : clan.room_code
         })
     return render_template('clans.html', cid = cid, clans = clans, clans_clean = clans_clean)
@@ -168,14 +168,14 @@ def _add_cases():
     cases = [
         {
             "title": "HAUNTED HOUSE HANG UP",
-            "description": "nkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu fgbbghjhbkjivubknkiuyufibnkmnksjg igighnlu",
-            "answer": "test ans",  # Placeholder for answers
-            "clues": ["test cl1", "test cl2", "test cl3", "test cl4", "test cl5"],
+            "description": "At the haunted Stillwall mansion, a headless specter guards an ancient secret. Join Scooby and the gang as they explore hidden passages, solve clues, and face ghostly encounters to unmask the specter and uncover the treasure within!",
+            "answer": "fourth column",  # Placeholder for answers
+            "clues": ["Look to the well something light rises, casting it's shadow in the darkness", "A single file holds the key; start with the fourth and find the unseen.", "Walls scream with axe and woe, where treasures lay, lies an ally, but who?", "Don't seek what the past did, but seek an interpretation, you treasure lies beyond but within.", "Though green may draw you near, the secret waits within what holds your home."],
             "cover_image": "../static/img/case button/1.png",
             "background_image": "../static/img/case bg/1.png",
             "reward": 1000,
             "locked": False,
-            "video": "img/case vid/sample.mp4"
+            "video": "img/case vid/1.mp4"
         },
         {
             "title": "COMING SOON",
@@ -247,6 +247,29 @@ def join_clan(clan_code):
     db.session.commit()
     return redirect(url_for('clan', clan_code=clan_code))
     
+
+@app.route('/join_clan_ajax/<clan_code>', methods=['POST'])
+@login_required
+def join_clan_ajax(clan_code):
+    clan = Clan.query.filter_by(room_code=clan_code).first()
+    if not clan:
+        return jsonify({'success': False, 'message': 'Clan not found'}), 404
+
+    if current_user in clan.users:  
+        return jsonify({
+            'success': True,
+            'message': 'Already a member',
+            'redirect_url': url_for('clan', clan_code=clan_code)
+        })
+
+    clan.users.append(current_user)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Joined clan successfully!',
+        'redirect_url': url_for('clan', clan_code=clan_code)
+    })
 
 @app.route('/clan/<clan_code>')
 @login_required
@@ -361,7 +384,7 @@ def check_answer():
     user_answer = data.get('answer')
 
     # Retrieve the case from the database
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
     if not case:
         return jsonify({"status": "error", "message": "Case not found."}), 404
 
@@ -379,7 +402,7 @@ def check_answer():
 
 @app.route('/del/<cc>', methods = ['POST'])
 def delclan(cc):
-    clan = Clan.query.filter_by(room_code = cc)
+    clan = Clan.query.filter_by(room_code = cc).first()
     db.session.delete(clan)
     db.session.commit()
     return jsonify({'success' : 'success'})

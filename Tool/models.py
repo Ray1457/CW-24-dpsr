@@ -17,7 +17,7 @@ class User(db.Model, UserMixin):
     gems = db.Column(db.Integer, default=3000)
     success_rate = db.Column(db.Float, default=0.0)
     cases_solved = db.Column(db.Integer, default=0)
-    profile_pic = db.Column(db.String(255), default='../static/img/user/default.png')  # Path or URL to profile picture
+    profile_pic = db.Column(db.String(255), default='../static/img/user/default.png')
 
     name = db.Column(db.String(100))
     age = db.Column(db.Integer)
@@ -28,6 +28,9 @@ class User(db.Model, UserMixin):
     # Relationship with clue access
     clues_accessed = db.relationship('ClueAccess', backref='user', lazy=True, cascade="all, delete-orphan")
 
+    # Relationship with clans (this is now a many-to-many relationship)
+    clans = db.relationship('Clan', secondary='room_users', backref=db.backref('users', lazy='dynamic'))
+
     def __repr__(self):
         return f"<User {self.username}>"
 
@@ -35,14 +38,14 @@ class Case(db.Model):
     __tablename__ = 'cases'
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)  # Title for the case/chapter
-    description = db.Column(db.Text, nullable=False)    # Detailed description or storyline
-    answer = db.Column(db.String, nullable=False)        # Storing answers (JSON or comma-separated)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.String, nullable=False)
     clues = db.Column(db.PickleType, nullable=True)          
-    cover_image = db.Column(db.String(255))             # Path or URL to cover image
-    background_image = db.Column(db.String(255))        # Background image for the case/chapter
-    reward = db.Column(db.Integer, default=0)           # Points or rewards for completion
-    locked = db.Column(db.Boolean, default=True)        # Indicates if the case is locked or unlocked
+    cover_image = db.Column(db.String(255))
+    background_image = db.Column(db.String(255))
+    reward = db.Column(db.Integer, default=0)
+    locked = db.Column(db.Boolean, default=True)
     video = db.Column(db.String, nullable=True)
     
     # Relationship with clue access
@@ -57,13 +60,11 @@ class ClueAccess(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     case_id = db.Column(db.Integer, db.ForeignKey('cases.id', ondelete='CASCADE'), nullable=False)
-    clue_no = db.Column(db.Integer, nullable=False)  # The index of the accessed clue
-    accessed_at = db.Column(db.DateTime, default=datetime.now)  # Timestamp of when the clue was accessed
+    clue_no = db.Column(db.Integer, nullable=False)
+    accessed_at = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
-        return f"<ClueAccess User {self.user_id} - Case {self.case_id} - Clue {self.clue_index}>"
-    
-
+        return f"<ClueAccess User {self.user_id} - Case {self.case_id} - Clue {self.clue_no}>"
 
 class Clan(db.Model):
     __tablename__ = 'clans'
@@ -77,10 +78,8 @@ class Clan(db.Model):
     # Relationships
     case = db.relationship('Case', backref=db.backref('rooms', lazy=True, cascade='all, delete-orphan'))
     
-    # Cascade delete the association with users and messages when a clan is deleted
-    users = db.relationship('User', secondary='room_users', backref=db.backref('rooms', lazy='dynamic'), cascade="all, delete")
+    # Relationships for messages
     messages = db.relationship('Message', backref='room', lazy=True, cascade="all, delete-orphan")
-
 
 class Message(db.Model):
     __tablename__ = 'messages'

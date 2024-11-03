@@ -23,11 +23,40 @@ Mystify - Clans
     <dialog id="enterCodeDialog" class="rounded-lg p-12 max-w-3xl mx-auto bg-center relative" style="background-image: url('../static/img/assets/dialog_bg.png');">
         <button onclick="closeDialog()" class="text-xl text-black p-2 rounded absolute right-4 top-4"><ion-icon name="close-outline"></ion-icon></button>
         <h2 class="text-5xl font-semibold mb-4">Enter Team Code</h2>
-        <input type="text" placeholder="Enter code" class="w-full px-4 py-2 rounded-lg mb-4 bg-[#8c632a] text-3xl" />
+        <input id="join-inp" type="text" placeholder="Enter code" class="w-full px-4 py-2 rounded-lg mb-4 bg-[#8c632a] text-3xl" />
         <div class="flex flex-col w-full gap-2 mt-4">
-            <button class="btn bg-[#4B2F07] text-2xl text-white px-4 py-2 rounded">Join</button>
+            <button class="btn bg-[#4B2F07] text-2xl text-white px-4 py-2 rounded" onclick="join()">Join</button>
         </div>
     </dialog>
+
+    <script>
+      function join() {
+          const code = document.getElementById('join-inp').value;
+      
+          if (!code) {
+              showFlashMessage('Empty code');
+              return;
+          }
+      
+          fetch(`/join_clan_ajax/${code}`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+          })
+          .then(response => response.json())
+          .then(data => {
+              showFlashMessage(data.message);
+              if (data.success && data.redirect_url) {
+                  window.location.href = data.redirect_url;
+              }
+          })
+          .catch(error => {
+              showFlashMessage('Error: ' + error.message);
+          });
+      }
+      </script>
+    
 
 
     <div class="mt-40 w-full pb-8">

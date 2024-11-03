@@ -9,8 +9,7 @@ Mystify - Create a Clan
 style="background-image: url(../static/img/assets/clan\ bg.png);"
 > 
     <div class="flex absolute top-16 w-full justify-around">
-      <button class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25] transition-colors" style="background-color: rgba(75, 47, 7, 0.5);">Enter code</button>
-      <button href="create.html" class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25]" style="background-color: rgba(75, 47, 7, 0.5);">Back</button>
+      <a href="{{ url_for('clans', cid = cid) }}" class="btn text-center text-white text-xl px-4 py-2 font-bold tracking-[0.25]" style="background-color: rgba(75, 47, 7, 0.5);">Back</a>
     </div>
     <div class="mt-40 flex flex-col items-center">
         <h1 class="text-[96px] text-[#4B2F07]">Create Team</h1>
